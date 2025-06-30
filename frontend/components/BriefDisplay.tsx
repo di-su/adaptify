@@ -1,0 +1,126 @@
+'use client'
+
+import { useState } from 'react'
+import { BriefResponse } from '@/lib/types'
+
+interface BriefDisplayProps {
+  brief: BriefResponse
+}
+
+export default function BriefDisplay({ brief }: BriefDisplayProps) {
+  const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set())
+
+  const toggleSection = (index: number) => {
+    const newExpanded = new Set(expandedSections)
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index)
+    } else {
+      newExpanded.add(index)
+    }
+    setExpandedSections(newExpanded)
+  }
+
+  const copyToClipboard = () => {
+    const briefText = formatBriefAsText(brief)
+    navigator.clipboard.writeText(briefText)
+      .then(() => alert('Brief copied to clipboard!'))
+      .catch(() => alert('Failed to copy brief'))
+  }
+
+  const formatBriefAsText = (brief: BriefResponse): string => {
+    let text = `Title: ${brief.title}\n\n`
+    text += `Meta Description: ${brief.meta_description}\n\n`
+    text += `Outline:\n`
+    
+    brief.outline.forEach((section) => {
+      text += `\n${section.heading}\n`
+      section.subpoints.forEach((point) => {
+        text += `  - ${point}\n`
+      })
+    })
+    
+    text += `\nKey Points:\n`
+    brief.key_points.forEach((point) => {
+      text += `- ${point}\n`
+    })
+    
+    text += `\nRecommendations:\n`
+    text += `- Tone: ${brief.recommendations.tone}\n`
+    text += `- Style: ${brief.recommendations.style}\n`
+    text += `- Length: ${brief.recommendations.length} words\n`
+    
+    return text
+  }
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold">Generated Brief</h2>
+        <button
+          onClick={copyToClipboard}
+          className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md text-sm transition duration-200"
+        >
+          Copy Brief
+        </button>
+      </div>
+
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Title</h3>
+          <p className="text-gray-800">{brief.title}</p>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Meta Description</h3>
+          <p className="text-gray-600 italic">{brief.meta_description}</p>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold mb-3">Outline</h3>
+          <div className="space-y-3">
+            {brief.outline.map((section, index) => (
+              <div key={index} className="border border-gray-200 rounded-md">
+                <button
+                  onClick={() => toggleSection(index)}
+                  className="w-full text-left px-4 py-3 flex justify-between items-center hover:bg-gray-50"
+                >
+                  <span className="font-medium">{section.heading}</span>
+                  <span className="text-gray-400">
+                    {expandedSections.has(index) ? '−' : '+'}
+                  </span>
+                </button>
+                {expandedSections.has(index) && (
+                  <div className="px-4 pb-3">
+                    <ul className="list-disc list-inside space-y-1">
+                      {section.subpoints.map((point, idx) => (
+                        <li key={idx} className="text-gray-600">{point}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Key Points</h3>
+          <ul className="list-disc list-inside space-y-1">
+            {brief.key_points.map((point, index) => (
+              <li key={index} className="text-gray-600">{point}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Recommendations</h3>
+          <div className="bg-gray-50 rounded-md p-4">
+            <p><strong>Tone:</strong> {brief.recommendations.tone}</p>
+            <p><strong>Style:</strong> {brief.recommendations.style}</p>
+            <p><strong>Target Length:</strong> {brief.recommendations.length} words</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
