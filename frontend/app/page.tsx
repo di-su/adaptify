@@ -44,42 +44,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg"></div>
-              <span className="text-xl font-semibold text-gray-900">
-                Content Generator
-              </span>
-            </div>
-            <nav className="hidden md:flex items-center space-x-8">
-              <a
-                href="#"
-                className="text-gray-600 hover:text-gray-900 font-medium"
-              >
-                Features
-              </a>
-              <a
-                href="#"
-                className="text-gray-600 hover:text-gray-900 font-medium"
-              >
-                Pricing
-              </a>
-              <a
-                href="#"
-                className="text-gray-600 hover:text-gray-900 font-medium"
-              >
-                About
-              </a>
-              <button className="btn-primary">Get Started</button>
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-12 max-w-4xl">
+      <div className="container mx-auto px-4 py-16 max-w-4xl">
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
@@ -184,9 +149,12 @@ export default function Home() {
               <h2 className="text-3xl font-bold text-center mb-2 text-gray-900">
                 Generate Your Content Brief
               </h2>
-              <p className="text-center text-gray-600 mb-8">
+              <p className="text-center text-gray-600 mb-2">
                 Enter your target keyword and preferences to create an
                 AI-powered content strategy
+              </p>
+              <p className="text-center text-sm text-gray-500 mb-8">
+                ⏱️ Generation may take up to 60 seconds
               </p>
               <BriefForm
                 onBriefGenerated={handleBriefGenerated}

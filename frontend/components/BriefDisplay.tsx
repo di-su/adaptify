@@ -117,9 +117,12 @@ export default function BriefDisplay({
           <h3 className="font-semibold text-gray-900 mb-1">
             Ready to create your article?
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 mb-1">
             Your brief is ready. Generate a full article or copy the brief for
             later use.
+          </p>
+          <p className="text-xs text-gray-500">
+            ⏱️ Article generation may take up to 60 seconds
           </p>
         </div>
         <div className="flex gap-3">
