@@ -1,12 +1,10 @@
 import json
 from typing import Dict, Any
-from langchain_anthropic import ChatAnthropic
-from langchain.schema import HumanMessage, SystemMessage
+import anthropic
 
 from anthropic_config import AnthropicConfig
 from content_prompts import ContentPrompts
 from response_validator import ResponseValidator
-from content_generator import ContentGenerator
 
 
 class AnthropicService:
@@ -14,16 +12,10 @@ class AnthropicService:
         self.config = AnthropicConfig()
         self.config.validate()
         
-        self.langchain_client = ChatAnthropic(
-            anthropic_api_key=self.config.api_key,
-            model_name=self.config.model,
-            temperature=self.config.temperature,
-            max_tokens=self.config.max_tokens,
-        )
+        self.client = anthropic.Anthropic(api_key=self.config.api_key)
         
         self.prompts = ContentPrompts()
         self.validator = ResponseValidator()
-        self.generator = ContentGenerator(self.langchain_client)
 
     async def generate_brief(
         self, keyword: str, content_type: str, tone: str, target_audience: str
@@ -31,15 +23,15 @@ class AnthropicService:
         prompt = self.prompts.get_brief_prompt(keyword, content_type, tone, target_audience)
 
         try:
-            messages = [
-                SystemMessage(
-                    content="You are an expert content strategist and SEO specialist. Generate comprehensive content briefs in valid JSON format. Always respond with properly formatted JSON only, no additional text."
-                ),
-                HumanMessage(content=prompt),
-            ]
-
-            response = self.langchain_client.invoke(messages)
-            content = self.validator.clean_json_response(response.content)
+            response = self.client.messages.create(
+                model=self.config.model,
+                max_tokens=self.config.max_tokens,
+                temperature=self.config.temperature,
+                system="You are an expert content strategist and SEO specialist. Generate comprehensive content briefs in valid JSON format. Always respond with properly formatted JSON only, no additional text.",
+                messages=[{"role": "user", "content": prompt}]
+            )
+            
+            content = self.validator.clean_json_response(response.content[0].text)
             brief_data = json.loads(content)
 
             return self.validator.validate_and_format_brief(brief_data)
@@ -47,7 +39,7 @@ class AnthropicService:
         except json.JSONDecodeError as e:
             raise Exception(f"Failed to parse JSON response: {str(e)}")
         except Exception as e:
-            raise Exception(f"LangChain API error: {str(e)}")
+            raise Exception(f"Anthropic API error: {str(e)}")
 
 
 
@@ -55,37 +47,39 @@ class AnthropicService:
         self, brief_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         try:
-            # Generate introduction
-            intro_content = await self.generator.generate_introduction(brief_data)
+            # Create a simple article generation prompt
+            outline_text = "\n".join([f"- {section['heading']}: {', '.join(section['subpoints'])}" for section in brief_data.get("outline", [])])
+            
+            article_prompt = f"""Write a complete article based on this brief:
 
-            # Generate body sections
-            sections_content = []
-            for section in brief_data.get("outline", []):
-                section_content = await self.generator.generate_section(
-                    section,
-                    brief_data,
-                    intro_content + "\n\n" + "\n\n".join(sections_content),
-                )
-                sections_content.append(section_content)
+Title: {brief_data.get('title', '')}
+Target Audience: {brief_data.get('recommendations', {}).get('target_audience', 'general')}
+Tone: {brief_data.get('recommendations', {}).get('tone', 'professional')}
 
-            # Generate conclusion
-            conclusion_content = await self.generator.generate_conclusion(
-                brief_data, intro_content + "\n\n" + "\n\n".join(sections_content)
+Outline:
+{outline_text}
+
+Key Points to Include:
+{', '.join(brief_data.get('key_points', []))}
+
+Write a comprehensive, well-structured article with an introduction, body sections covering all outline points, and a conclusion. Use proper formatting with headings and paragraphs."""
+
+            response = self.client.messages.create(
+                model=self.config.model,
+                max_tokens=4000,
+                temperature=self.config.temperature,
+                messages=[{"role": "user", "content": article_prompt}]
             )
-
-            # Assemble complete article
-            complete_article = self.generator.assemble_article(
-                brief_data, intro_content, sections_content, conclusion_content
-            )
-
-            # Calculate final word count
-            actual_word_count = len(complete_article.split())
+            
+            article_content = response.content[0].text
+            word_count = len(article_content.split())
+            section_count = len(brief_data.get("outline", [])) + 2  # intro + sections + conclusion
 
             return {
                 "title": brief_data.get("title", ""),
-                "content": complete_article,
-                "word_count": actual_word_count,
-                "sections": len(sections_content) + 2,  # intro + sections + conclusion
+                "content": article_content,
+                "word_count": word_count,
+                "sections": section_count,
             }
 
         except Exception as e:
