@@ -44,7 +44,7 @@ Tone: {tone}
 Key points to preview: {key_points}
 
 Create a compelling hook, provide context, and end with a clear thesis statement.
-Write 1 concise paragraph that draws readers in and sets up the article's main points.
+Write 1 concise paragraph with sensible line breaks that draws readers in and sets up the article's main points.
 
 Return only the introduction text, no additional formatting.""",
         )
@@ -66,7 +66,7 @@ Target audience: {target_audience}
 Tone: {tone}
 Previous content for context: {previous_content}
 
-Write 1-2 focused paragraphs that thoroughly cover the subpoints.
+Write 1-2 focused paragraphs with sensible line breaks that thoroughly cover the subpoints.
 Ensure smooth transitions from the previous content.
 Use examples and explanations appropriate for the target audience.
 Keep it concise but comprehensive.
@@ -90,7 +90,7 @@ Create a conclusion that:
 3. Includes a call-to-action or next steps
 4. Ends with a memorable final thought
 
-Write 1 concise paragraph that provides closure and inspires action.
+Write 1 concise paragraph with sensible line breaks that provides closure and inspires action.
 
 Return only the conclusion text, no additional formatting.""",
         )

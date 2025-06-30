@@ -6,9 +6,11 @@ import ArticleDisplay from './ArticleDisplay';
 
 interface BriefDisplayProps {
   brief: BriefResponse;
+  onArticleGenerated?: (article: ArticleResponse) => void;
+  onError?: (error: string) => void;
 }
 
-export default function BriefDisplay({ brief }: BriefDisplayProps) {
+export default function BriefDisplay({ brief, onArticleGenerated, onError }: BriefDisplayProps) {
   const [expandedSections, setExpandedSections] = useState<Set<number>>(
     new Set()
   );
@@ -88,32 +90,36 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
 
       const articleData: ArticleResponse = await response.json();
       setArticle(articleData);
+      if (onArticleGenerated) {
+        onArticleGenerated(articleData);
+      }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to generate article'
-      );
+      const errorMessage = err instanceof Error ? err.message : 'Failed to generate article';
+      setError(errorMessage);
+      if (onError) {
+        onError(errorMessage);
+      }
     } finally {
       setIsGenerating(false);
     }
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold">Generated Brief</h2>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <button
             onClick={copyToClipboard}
-            className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md text-sm transition duration-200"
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
           >
             Copy Brief
           </button>
           <button
             onClick={generateArticle}
             disabled={isGenerating}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-md text-sm transition duration-200"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors"
           >
-            {isGenerating ? 'Generating...' : 'Generate Article'}
+            {isGenerating ? 'Generating Article...' : 'Generate Article →'}
           </button>
         </div>
       </div>
@@ -186,12 +192,6 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
       {error && (
         <div className="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
           <p className="text-red-800">Error: {error}</p>
-        </div>
-      )}
-
-      {article && (
-        <div className="mt-8">
-          <ArticleDisplay article={article} />
         </div>
       )}
     </div>
