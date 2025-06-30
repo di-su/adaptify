@@ -74,7 +74,7 @@ export default function BriefDisplay({ brief, onArticleGenerated, onError }: Bri
       };
 
       const response = await fetch(
-        'http://localhost:8000/api/generate-article',
+        `${process.env.NEXT_PUBLIC_API_URL}/api/generate-article`,
         {
           method: 'POST',
           headers: {
