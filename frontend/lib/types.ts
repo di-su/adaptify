@@ -24,3 +24,18 @@ export interface BriefResponse {
   key_points: string[]
   recommendations: Recommendations
 }
+
+export interface ArticleRequest {
+  title: string
+  meta_description: string
+  outline: OutlineItem[]
+  key_points: string[]
+  recommendations: Recommendations
+}
+
+export interface ArticleResponse {
+  title: string
+  content: string
+  word_count: number
+  sections: number
+}

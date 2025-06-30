@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { BriefResponse } from '@/lib/types'
+import { BriefResponse, ArticleResponse } from '@/lib/types'
+import ArticleDisplay from './ArticleDisplay'
 
 interface BriefDisplayProps {
   brief: BriefResponse
@@ -9,6 +10,9 @@ interface BriefDisplayProps {
 
 export default function BriefDisplay({ brief }: BriefDisplayProps) {
   const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set())
+  const [article, setArticle] = useState<ArticleResponse | null>(null)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const toggleSection = (index: number) => {
     const newExpanded = new Set(expandedSections)
@@ -52,16 +56,51 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
     return text
   }
 
+  const generateArticle = async () => {
+    setIsGenerating(true)
+    setError(null)
+    
+    try {
+      const response = await fetch('http://localhost:8000/api/generate-article', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(brief),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const articleData: ArticleResponse = await response.json()
+      setArticle(articleData)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to generate article')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Generated Brief</h2>
-        <button
-          onClick={copyToClipboard}
-          className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md text-sm transition duration-200"
-        >
-          Copy Brief
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={copyToClipboard}
+            className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md text-sm transition duration-200"
+          >
+            Copy Brief
+          </button>
+          <button
+            onClick={generateArticle}
+            disabled={isGenerating}
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-md text-sm transition duration-200"
+          >
+            {isGenerating ? 'Generating...' : 'Generate Article'}
+          </button>
+        </div>
       </div>
 
       <div className="space-y-6">
@@ -121,6 +160,18 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
           </div>
         </div>
       </div>
+
+      {error && (
+        <div className="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800">Error: {error}</p>
+        </div>
+      )}
+
+      {article && (
+        <div className="mt-8">
+          <ArticleDisplay article={article} />
+        </div>
+      )}
     </div>
   )
 }

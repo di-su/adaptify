@@ -44,6 +44,19 @@ class BriefResponse(BaseModel):
     key_points: List[str]
     recommendations: Recommendations
 
+class ArticleRequest(BaseModel):
+    title: str
+    meta_description: str
+    outline: List[OutlineItem]
+    key_points: List[str]
+    recommendations: Recommendations
+
+class ArticleResponse(BaseModel):
+    title: str
+    content: str
+    word_count: int
+    sections: int
+
 @app.get("/")
 async def root():
     return {"message": "Content Brief Generator API"}
@@ -59,6 +72,27 @@ async def generate_brief(request: BriefRequest):
             word_count=request.word_count
         )
         return brief
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/generate-article", response_model=ArticleResponse)
+async def generate_article(request: ArticleRequest):
+    try:
+        brief_data = {
+            "title": request.title,
+            "meta_description": request.meta_description,
+            "outline": [{"heading": item.heading, "subpoints": item.subpoints} for item in request.outline],
+            "key_points": request.key_points,
+            "recommendations": {
+                "tone": request.recommendations.tone,
+                "style": request.recommendations.style,
+                "length": request.recommendations.length,
+                "target_audience": "general audience"
+            }
+        }
+        
+        article = await anthropic_service.generate_article_from_brief(brief_data)
+        return article
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
