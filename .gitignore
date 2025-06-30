@@ -1,8 +1,13 @@
 # Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
 venv/
 .venv/
+myenv/
+env/
 
 # Node
 node_modules/
@@ -14,6 +19,7 @@ node_modules/
 
 # OS
 .DS_Store
+Thumbs.db
 
 # IDE
 .vscode/
@@ -21,3 +27,6 @@ node_modules/
 
 # Logs
 *.log
+
+# Vercel
+.vercel
