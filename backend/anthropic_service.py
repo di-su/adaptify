@@ -9,9 +9,9 @@ load_dotenv()
 class AnthropicService:
     def __init__(self):
         self.client = AsyncAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-        self.model = os.getenv("ANTHROPIC_MODEL", "claude-3-sonnet-20240229")
-        self.max_tokens = int(os.getenv("MAX_TOKENS", "2000"))
-        self.temperature = float(os.getenv("TEMPERATURE", "0.7"))
+        self.model = os.getenv("ANTHROPIC_MODEL")
+        self.max_tokens = int(os.getenv("MAX_TOKENS"))
+        self.temperature = float(os.getenv("TEMPERATURE"))
 
     async def generate_brief(
         self,
