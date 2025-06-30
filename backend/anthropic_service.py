@@ -47,43 +47,131 @@ class AnthropicService:
         self, brief_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         try:
-            # Create a simple article generation prompt
-            outline_text = "\n".join([f"- {section['heading']}: {', '.join(section['subpoints'])}" for section in brief_data.get("outline", [])])
-            
-            article_prompt = f"""Write a complete article based on this brief:
+            # Generate introduction
+            intro_content = await self.generate_introduction(brief_data)
 
-Title: {brief_data.get('title', '')}
-Target Audience: {brief_data.get('recommendations', {}).get('target_audience', 'general')}
-Tone: {brief_data.get('recommendations', {}).get('tone', 'professional')}
+            # Generate body sections
+            sections_content = []
+            for section in brief_data.get("outline", []):
+                section_content = await self.generate_section(
+                    section,
+                    brief_data,
+                    intro_content + "\n\n" + "\n\n".join(sections_content),
+                )
+                sections_content.append(section_content)
 
-Outline:
-{outline_text}
-
-Key Points to Include:
-{', '.join(brief_data.get('key_points', []))}
-
-Write a comprehensive, well-structured article with an introduction, body sections covering all outline points, and a conclusion. Use proper formatting with headings and paragraphs."""
-
-            response = self.client.messages.create(
-                model=self.config.model,
-                max_tokens=4000,
-                temperature=self.config.temperature,
-                messages=[{"role": "user", "content": article_prompt}]
+            # Generate conclusion
+            conclusion_content = await self.generate_conclusion(
+                brief_data, intro_content + "\n\n" + "\n\n".join(sections_content)
             )
-            
-            article_content = response.content[0].text
-            word_count = len(article_content.split())
-            section_count = len(brief_data.get("outline", [])) + 2  # intro + sections + conclusion
+
+            # Assemble complete article
+            complete_article = self.assemble_article(
+                brief_data, intro_content, sections_content, conclusion_content
+            )
+
+            # Calculate final word count
+            actual_word_count = len(complete_article.split())
 
             return {
                 "title": brief_data.get("title", ""),
-                "content": article_content,
-                "word_count": word_count,
-                "sections": section_count,
+                "content": complete_article,
+                "word_count": actual_word_count,
+                "sections": len(sections_content) + 2,  # intro + sections + conclusion
             }
 
         except Exception as e:
             raise Exception(f"Article generation error: {str(e)}")
+
+    async def generate_introduction(self, brief_data: Dict[str, Any]) -> str:
+        key_points_str = ", ".join(brief_data.get("key_points", []))
+        
+        prompt = self.prompts.get_introduction_prompt(
+            title=brief_data.get("title", ""),
+            key_points=key_points_str,
+            target_audience=brief_data.get("recommendations", {}).get(
+                "target_audience", "general audience"
+            ),
+            tone=brief_data.get("recommendations", {}).get("tone", "professional"),
+        )
+        
+        response = self.client.messages.create(
+            model=self.config.model,
+            max_tokens=1000,
+            temperature=self.config.temperature,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        
+        return response.content[0].text.strip()
+
+    async def generate_section(
+        self, section: Dict[str, Any], brief_data: Dict[str, Any], previous_content: str
+    ) -> str:
+        subpoints_str = ", ".join(section.get("subpoints", []))
+        
+        prompt = self.prompts.get_section_prompt(
+            heading=section.get("heading", ""),
+            subpoints=subpoints_str,
+            previous_content=(
+                previous_content[-500:]
+                if len(previous_content) > 500
+                else previous_content
+            ),
+            tone=brief_data.get("recommendations", {}).get("tone", "professional"),
+            target_audience=brief_data.get("recommendations", {}).get(
+                "target_audience", "general audience"
+            ),
+        )
+        
+        response = self.client.messages.create(
+            model=self.config.model,
+            max_tokens=1500,
+            temperature=self.config.temperature,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        
+        return response.content[0].text.strip()
+
+    async def generate_conclusion(
+        self, brief_data: Dict[str, Any], article_content: str
+    ) -> str:
+        key_points_str = ", ".join(brief_data.get("key_points", []))
+        
+        prompt = self.prompts.get_conclusion_prompt(
+            title=brief_data.get("title", ""),
+            key_points=key_points_str,
+            article_content=(
+                article_content[-800:]
+                if len(article_content) > 800
+                else article_content
+            ),
+            tone=brief_data.get("recommendations", {}).get("tone", "professional"),
+        )
+        
+        response = self.client.messages.create(
+            model=self.config.model,
+            max_tokens=1000,
+            temperature=self.config.temperature,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        
+        return response.content[0].text.strip()
+
+    def assemble_article(
+        self, brief_data: Dict[str, Any], intro: str, sections: list, conclusion: str
+    ) -> str:
+        title = brief_data.get("title", "")
+        
+        article_parts = [f"# {title}", "", intro, ""]
+        
+        for i, section_content in enumerate(sections):
+            article_parts.append(section_content)
+            if i < len(sections) - 1:
+                article_parts.append("")
+        
+        article_parts.extend(["", conclusion])
+        
+        return "\n".join(article_parts)
 
 
 
