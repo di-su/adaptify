@@ -53,84 +53,89 @@ export default function BriefForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-semibold mb-6">Generate Content Brief</h2>
-
-      <div className="mb-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-1">
         <label
           htmlFor="keyword"
-          className="block text-sm font-medium text-gray-700 mb-2"
+          className="block text-sm font-semibold text-gray-900"
         >
-          Keywords *
+          Target Keyword
+          <span className="text-red-500 ml-1">*</span>
         </label>
+        <p className="text-sm text-gray-600">Enter the main keyword or topic for your content</p>
         <input
           type="text"
           id="keyword"
           value={formData.keyword}
           onChange={e => setFormData({ ...formData, keyword: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="e.g., fasting, coffee"
+          className="input-modern"
+          placeholder="e.g., sustainable fashion, remote work tips"
           disabled={loading}
+          required
         />
       </div>
 
-      <div className="mb-4">
-        <label
-          htmlFor="content_type"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Content Type
-        </label>
-        <select
-          id="content_type"
-          value={formData.content_type}
-          onChange={e =>
-            setFormData({
-              ...formData,
-              content_type: e.target.value as BriefRequest['content_type'],
-            })
-          }
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          disabled={loading}
-        >
-          <option value="blog">Blog Post</option>
-          <option value="article">Article</option>
-          <option value="guide">Guide</option>
-        </select>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-1">
+          <label
+            htmlFor="content_type"
+            className="block text-sm font-semibold text-gray-900"
+          >
+            Content Type
+          </label>
+          <select
+            id="content_type"
+            value={formData.content_type}
+            onChange={e =>
+              setFormData({
+                ...formData,
+                content_type: e.target.value as BriefRequest['content_type'],
+              })
+            }
+            className="input-modern"
+            disabled={loading}
+          >
+            <option value="blog">Blog Post</option>
+            <option value="article">Article</option>
+            <option value="guide">How-to Guide</option>
+          </select>
+        </div>
+
+        <div className="space-y-1">
+          <label
+            htmlFor="tone"
+            className="block text-sm font-semibold text-gray-900"
+          >
+            Writing Tone
+          </label>
+          <select
+            id="tone"
+            value={formData.tone}
+            onChange={e =>
+              setFormData({
+                ...formData,
+                tone: e.target.value as BriefRequest['tone'],
+              })
+            }
+            className="input-modern"
+            disabled={loading}
+          >
+            <option value="professional">Professional</option>
+            <option value="casual">Casual & Friendly</option>
+            <option value="technical">Technical</option>
+          </select>
+        </div>
       </div>
 
-      <div className="mb-4">
-        <label
-          htmlFor="tone"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Tone
-        </label>
-        <select
-          id="tone"
-          value={formData.tone}
-          onChange={e =>
-            setFormData({
-              ...formData,
-              tone: e.target.value as BriefRequest['tone'],
-            })
-          }
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          disabled={loading}
-        >
-          <option value="professional">Professional</option>
-          <option value="casual">Casual</option>
-          <option value="technical">Technical</option>
-        </select>
-      </div>
-
-      <div className="mb-4">
+      <div className="space-y-1">
         <label
           htmlFor="target_audience"
-          className="block text-sm font-medium text-gray-700 mb-2"
+          className="block text-sm font-semibold text-gray-900"
         >
           Target Audience
+          <span className="text-gray-500 font-normal ml-1">(optional)</span>
         </label>
+        <p className="text-sm text-gray-600">Describe your ideal reader for more targeted content</p>
         <input
           type="text"
           id="target_audience"
@@ -138,19 +143,36 @@ export default function BriefForm({
           onChange={e =>
             setFormData({ ...formData, target_audience: e.target.value })
           }
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="e.g., health-conscious adults"
+          className="input-modern"
+          placeholder="e.g., small business owners, fitness enthusiasts, tech professionals"
           disabled={loading}
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 disabled:bg-gray-400"
-      >
-        {loading ? 'Generating...' : 'Generate Brief'}
-      </button>
+      <div className="pt-2">
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full btn-primary flex items-center justify-center gap-2"
+        >
+          {loading ? (
+            <>
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Generating Your Brief...
+            </>
+          ) : (
+            <>
+              Generate Content Brief
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </>
+          )}
+        </button>
+      </div>
     </form>
   );
 }

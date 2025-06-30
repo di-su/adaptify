@@ -43,71 +43,101 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Header with Progress */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-8">
-            AI Content Generator
+    <main className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg"></div>
+              <span className="text-xl font-semibold text-gray-900">Adaptify Content</span>
+            </div>
+            <nav className="hidden md:flex items-center space-x-8">
+              <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">Features</a>
+              <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">Pricing</a>
+              <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">About</a>
+              <button className="btn-primary">Get Started</button>
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-12 max-w-4xl">
+        {/* Hero Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
+            AI-Powered Content Generation
           </h1>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Create SEO-optimized content briefs and articles in minutes with our advanced AI technology.
+          </p>
           
-          {/* Progress Steps */}
-          <div className="flex justify-center items-center space-x-4 mb-8">
-            <div className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                stage === 'form' ? 'bg-blue-600 text-white' : 
-                (stage === 'brief' || stage === 'article') ? 'bg-green-500 text-white' : 
-                'bg-gray-300 text-gray-600'
-              }`}>
-                1
-              </div>
-              <span className="ml-2 text-sm font-medium text-gray-700">Generate Brief</span>
+        </div>
+        
+        {/* Progress Steps */}
+        <div className="flex justify-center items-center space-x-4 mb-12">
+          <div className="flex items-center">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
+              stage === 'form' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 
+              (stage === 'brief' || stage === 'article') ? 'bg-indigo-100 text-indigo-700 border-2 border-indigo-200' : 
+              'bg-gray-100 text-gray-400'
+            }`}>
+              {(stage === 'brief' || stage === 'article') ? '✓' : '1'}
             </div>
-            
-            <div className={`w-8 h-0.5 ${
-              stage === 'brief' || stage === 'article' ? 'bg-green-500' : 'bg-gray-300'
-            }`}></div>
-            
-            <div className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                stage === 'brief' ? 'bg-blue-600 text-white' : 
-                stage === 'article' ? 'bg-green-500 text-white' : 
-                'bg-gray-300 text-gray-600'
-              }`}>
-                2
-              </div>
-              <span className="ml-2 text-sm font-medium text-gray-700">Review Brief</span>
+            <span className="ml-3 text-sm font-medium text-gray-700">Generate Brief</span>
+          </div>
+          
+          <div className={`w-16 h-1 rounded-full transition-all duration-500 ${
+            stage === 'brief' || stage === 'article' ? 'bg-indigo-200' : 'bg-gray-200'
+          }`}></div>
+          
+          <div className="flex items-center">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
+              stage === 'brief' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 
+              stage === 'article' ? 'bg-indigo-100 text-indigo-700 border-2 border-indigo-200' : 
+              'bg-gray-100 text-gray-400'
+            }`}>
+              {stage === 'article' ? '✓' : '2'}
             </div>
-            
-            <div className={`w-8 h-0.5 ${
-              stage === 'article' ? 'bg-green-500' : 'bg-gray-300'
-            }`}></div>
-            
-            <div className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                stage === 'article' ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
-              }`}>
-                3
-              </div>
-              <span className="ml-2 text-sm font-medium text-gray-700">Generate Article</span>
+            <span className="ml-3 text-sm font-medium text-gray-700">Review Brief</span>
+          </div>
+          
+          <div className={`w-16 h-1 rounded-full transition-all duration-500 ${
+            stage === 'article' ? 'bg-indigo-200' : 'bg-gray-200'
+          }`}></div>
+          
+          <div className="flex items-center">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
+              stage === 'article' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-gray-100 text-gray-400'
+            }`}>
+              3
             </div>
+            <span className="ml-3 text-sm font-medium text-gray-700">Generate Article</span>
           </div>
         </div>
 
         {/* Error Display */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-center">
-            {error}
+          <div className="bg-red-50 border border-red-100 text-red-600 px-6 py-4 rounded-xl mb-8 text-center font-medium">
+            <span className="inline-flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              {error}
+            </span>
           </div>
         )}
 
         {/* Stage Content */}
-        <div className="bg-white rounded-xl shadow-lg p-8">
+        <div className="card p-8 lg:p-10">
           {stage === 'form' && (
             <div>
-              <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
-                Step 1: Generate Content Brief
+              <h2 className="text-3xl font-bold text-center mb-2 text-gray-900">
+                Generate Your Content Brief
               </h2>
+              <p className="text-center text-gray-600 mb-8">
+                Enter your target keyword and preferences to create an AI-powered content strategy
+              </p>
               <BriefForm
                 onBriefGenerated={handleBriefGenerated}
                 onError={handleError}
@@ -119,20 +149,23 @@ export default function Home() {
 
           {stage === 'brief' && brief && (
             <div>
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold text-gray-800">
-                  Step 2: Review Your Brief
-                </h2>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900">
+                    Your Content Brief
+                  </h2>
+                  <p className="text-gray-600 mt-1">Review and generate a full article from this brief</p>
+                </div>
                 <div className="flex gap-3">
                   <button
                     onClick={() => goToStage('form')}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="btn-secondary text-sm"
                   >
-                    ← Back to Form
+                    ← Edit Brief
                   </button>
                   <button
                     onClick={resetFlow}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                    className="text-gray-500 hover:text-gray-700 font-medium text-sm"
                   >
                     Start Over
                   </button>
@@ -148,46 +181,54 @@ export default function Home() {
 
           {stage === 'article' && article && (
             <div>
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold text-gray-800">
-                  Step 3: Your Generated Article
-                </h2>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900">
+                    Your Generated Article
+                  </h2>
+                  <p className="text-gray-600 mt-1">Ready to publish • {article.word_count} words • {article.sections} sections</p>
+                </div>
                 <div className="flex gap-3">
                   <button
                     onClick={() => goToStage('brief')}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="btn-secondary text-sm"
                   >
                     ← Back to Brief
                   </button>
                   <button
                     onClick={resetFlow}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="btn-primary text-sm"
                   >
                     Create New Content
                   </button>
                 </div>
               </div>
               
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold">{article.title}</h3>
-                  <div className="text-sm text-gray-500">
-                    {article.word_count} words • {article.sections} sections
+              <div className="bg-gray-50 rounded-xl border border-gray-100 overflow-hidden">
+                <div className="bg-white border-b border-gray-100 px-6 py-4">
+                  <h3 className="text-xl font-bold text-gray-900">{article.title}</h3>
+                </div>
+                
+                <div className="p-6">
+                  <div className="prose prose-lg max-w-none">
+                    <pre className="whitespace-pre-wrap font-sans text-gray-700 leading-relaxed bg-transparent border-0 p-0">
+{article.content}
+                    </pre>
                   </div>
                 </div>
                 
-                <div className="prose max-w-none">
-                  <pre className="whitespace-pre-wrap font-sans text-gray-800 leading-relaxed">
-                    {article.content}
-                  </pre>
-                </div>
-                
-                <div className="mt-6 flex gap-3">
+                <div className="bg-white border-t border-gray-100 px-6 py-4 flex gap-3">
                   <button
-                    onClick={() => navigator.clipboard.writeText(article.content)}
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                    onClick={() => {
+                      navigator.clipboard.writeText(article.content);
+                      // You could add a toast notification here
+                    }}
+                    className="btn-secondary text-sm flex items-center gap-2"
                   >
-                    Copy Article
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Copy to Clipboard
                   </button>
                   <button
                     onClick={() => {
@@ -199,8 +240,11 @@ export default function Home() {
                       a.click();
                       URL.revokeObjectURL(url);
                     }}
-                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                    className="btn-primary text-sm flex items-center gap-2"
                   >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
                     Download Article
                   </button>
                 </div>
