@@ -1,5 +1,3 @@
-from langchain.prompts import PromptTemplate
-
 class ContentPrompts:
     @staticmethod
     def get_brief_prompt(keyword: str, content_type: str, tone: str, target_audience: str) -> str:
@@ -32,65 +30,3 @@ Make sure to:
 5. Ensure all headings are engaging and descriptive
 
 Important: Return ONLY valid JSON, no markdown formatting or additional text."""
-
-    @staticmethod
-    def get_introduction_template() -> PromptTemplate:
-        return PromptTemplate(
-            input_variables=["title", "key_points", "target_audience", "tone"],
-            template="""Write an engaging introduction for an article titled "{title}".
-
-Target audience: {target_audience}
-Tone: {tone}
-Key points to preview: {key_points}
-
-Create a compelling hook, provide context, and end with a clear thesis statement.
-Write 1 concise paragraph with sensible line breaks that draws readers in and sets up the article's main points.
-
-Return only the introduction text, no additional formatting.""",
-        )
-
-    @staticmethod
-    def get_section_template() -> PromptTemplate:
-        return PromptTemplate(
-            input_variables=[
-                "heading",
-                "subpoints",
-                "previous_content",
-                "tone",
-                "target_audience",
-            ],
-            template="""Write a detailed section for the heading "{heading}".
-
-Subpoints to cover: {subpoints}
-Target audience: {target_audience}
-Tone: {tone}
-Previous content for context: {previous_content}
-
-Write 1-2 focused paragraphs with sensible line breaks that thoroughly cover the subpoints.
-Ensure smooth transitions from the previous content.
-Use examples and explanations appropriate for the target audience.
-Keep it concise but comprehensive.
-
-Return only the section content with the heading, no additional formatting.""",
-        )
-
-    @staticmethod
-    def get_conclusion_template() -> PromptTemplate:
-        return PromptTemplate(
-            input_variables=["title", "key_points", "article_content", "tone"],
-            template="""Write a compelling conclusion for an article titled "{title}".
-
-Key points covered: {key_points}
-Tone: {tone}
-Article content for context: {article_content}
-
-Create a conclusion that:
-1. Summarizes the main points
-2. Reinforces the article's value
-3. Includes a call-to-action or next steps
-4. Ends with a memorable final thought
-
-Write 1 concise paragraph with sensible line breaks that provides closure and inspires action.
-
-Return only the conclusion text, no additional formatting.""",
-        )
