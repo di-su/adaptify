@@ -12,9 +12,9 @@ class AnthropicService:
     def __init__(self):
         self.config = AnthropicConfig()
         self.config.validate()
-        
+
         self.client = anthropic.Anthropic(api_key=self.config.api_key)
-        
+
         self.prompts = ContentPrompts()
         self.validator = ResponseValidator()
         self.generator = ContentGenerator(self.client, self.config)
@@ -22,7 +22,9 @@ class AnthropicService:
     async def generate_brief(
         self, keyword: str, content_type: str, tone: str, target_audience: str
     ) -> Dict[str, Any]:
-        prompt = self.prompts.get_brief_prompt(keyword, content_type, tone, target_audience)
+        prompt = self.prompts.get_brief_prompt(
+            keyword, content_type, tone, target_audience
+        )
 
         try:
             response = self.client.messages.create(
@@ -30,9 +32,9 @@ class AnthropicService:
                 max_tokens=self.config.max_tokens,
                 temperature=self.config.temperature,
                 system="You are an expert content strategist and SEO specialist. Generate comprehensive content briefs in valid JSON format. Always respond with properly formatted JSON only, no additional text.",
-                messages=[{"role": "user", "content": prompt}]
+                messages=[{"role": "user", "content": prompt}],
             )
-            
+
             content = self.validator.clean_json_response(response.content[0].text)
             brief_data = json.loads(content)
 
@@ -42,8 +44,6 @@ class AnthropicService:
             raise Exception(f"Failed to parse JSON response: {str(e)}")
         except Exception as e:
             raise Exception(f"Anthropic API error: {str(e)}")
-
-
 
     async def generate_article_from_brief(
         self, brief_data: Dict[str, Any]
@@ -84,7 +84,3 @@ class AnthropicService:
 
         except Exception as e:
             raise Exception(f"Article generation error: {str(e)}")
-
-
-
-

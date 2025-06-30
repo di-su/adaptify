@@ -1,6 +1,8 @@
 class ContentPrompts:
     @staticmethod
-    def get_brief_prompt(keyword: str, content_type: str, tone: str, target_audience: str) -> str:
+    def get_brief_prompt(
+        keyword: str, content_type: str, tone: str, target_audience: str
+    ) -> str:
         return f"""
 Generate a comprehensive content brief for a {content_type} about "{keyword}" targeting {target_audience}.
 Use a {tone} tone.
@@ -32,7 +34,9 @@ Make sure to:
 Important: Return ONLY valid JSON, no markdown formatting or additional text."""
 
     @staticmethod
-    def get_introduction_prompt(title: str, key_points: str, target_audience: str, tone: str) -> str:
+    def get_introduction_prompt(
+        title: str, key_points: str, target_audience: str, tone: str
+    ) -> str:
         return f"""Write an engaging introduction for an article titled "{title}".
 
 Target audience: {target_audience}
@@ -46,7 +50,13 @@ Use proper line breaks (\\n\\n) between sentences or logical breaks to improve r
 Return only the introduction text, no additional formatting."""
 
     @staticmethod
-    def get_section_prompt(heading: str, subpoints: str, previous_content: str, tone: str, target_audience: str) -> str:
+    def get_section_prompt(
+        heading: str,
+        subpoints: str,
+        previous_content: str,
+        tone: str,
+        target_audience: str,
+    ) -> str:
         return f"""Write a detailed section for the heading "{heading}".
 
 Subpoints to cover: {subpoints}
@@ -63,7 +73,9 @@ Keep it concise but comprehensive.
 Return only the section content with the heading, no additional formatting."""
 
     @staticmethod
-    def get_conclusion_prompt(title: str, key_points: str, article_content: str, tone: str) -> str:
+    def get_conclusion_prompt(
+        title: str, key_points: str, article_content: str, tone: str
+    ) -> str:
         return f"""Write a compelling conclusion for an article titled "{title}".
 
 Key points covered: {key_points}

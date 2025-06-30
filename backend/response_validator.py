@@ -1,6 +1,7 @@
 from typing import Dict, Any
 from constants import MAX_META_DESCRIPTION_LENGTH, DEFAULT_TONE
 
+
 class ResponseValidator:
     @staticmethod
     def validate_and_format_brief(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -18,7 +19,9 @@ class ResponseValidator:
 
         # Truncate meta description if too long
         if len(data["meta_description"]) > MAX_META_DESCRIPTION_LENGTH:
-            data["meta_description"] = data["meta_description"][:MAX_META_DESCRIPTION_LENGTH-3] + "..."
+            data["meta_description"] = (
+                data["meta_description"][: MAX_META_DESCRIPTION_LENGTH - 3] + "..."
+            )
 
         # Format outline
         formatted_outline = []
