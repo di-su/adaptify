@@ -1,0 +1,14 @@
+# Default values for content generation
+DEFAULT_TONE = "professional"
+DEFAULT_TARGET_AUDIENCE = "general audience"
+DEFAULT_CONTENT_TYPE = "blog"
+
+# Content length limits
+MAX_META_DESCRIPTION_LENGTH = 155
+SECTION_CONTEXT_LIMIT = 500
+CONCLUSION_CONTEXT_LIMIT = 800
+
+# API response limits
+MAX_TOKENS_INTRO = 1000
+MAX_TOKENS_SECTION = 1500
+MAX_TOKENS_CONCLUSION = 1000

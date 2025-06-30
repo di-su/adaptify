@@ -1,4 +1,5 @@
 from typing import Dict, Any
+from constants import MAX_META_DESCRIPTION_LENGTH, DEFAULT_TONE
 
 class ResponseValidator:
     @staticmethod
@@ -16,8 +17,8 @@ class ResponseValidator:
                 raise ValueError(f"Missing required field: {field}")
 
         # Truncate meta description if too long
-        if len(data["meta_description"]) > 160:
-            data["meta_description"] = data["meta_description"][:155] + "..."
+        if len(data["meta_description"]) > MAX_META_DESCRIPTION_LENGTH:
+            data["meta_description"] = data["meta_description"][:MAX_META_DESCRIPTION_LENGTH-3] + "..."
 
         # Format outline
         formatted_outline = []
@@ -36,11 +37,11 @@ class ResponseValidator:
 
         data["outline"] = formatted_outline
 
-        # Ensure recommendations exist
+        # Ensure recommendations exist with proper defaults
         if "recommendations" not in data or not isinstance(
             data["recommendations"], dict
         ):
-            data["recommendations"] = {"tone": "professional", "style": "informative"}
+            data["recommendations"] = {"tone": DEFAULT_TONE, "style": "informative"}
 
         return data
 
