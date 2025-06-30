@@ -1,86 +1,104 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { BriefResponse, ArticleResponse } from '@/lib/types'
-import ArticleDisplay from './ArticleDisplay'
+import { useState } from "react";
+import { BriefResponse, ArticleResponse, ArticleRequest } from "@/lib/types";
+import ArticleDisplay from "./ArticleDisplay";
 
 interface BriefDisplayProps {
-  brief: BriefResponse
+  brief: BriefResponse;
 }
 
 export default function BriefDisplay({ brief }: BriefDisplayProps) {
-  const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set())
-  const [article, setArticle] = useState<ArticleResponse | null>(null)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [expandedSections, setExpandedSections] = useState<Set<number>>(
+    new Set()
+  );
+  const [article, setArticle] = useState<ArticleResponse | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [wordCount, setWordCount] = useState<number>(500);
+  const [showWordCountInput, setShowWordCountInput] = useState(false);
 
   const toggleSection = (index: number) => {
-    const newExpanded = new Set(expandedSections)
+    const newExpanded = new Set(expandedSections);
     if (newExpanded.has(index)) {
-      newExpanded.delete(index)
+      newExpanded.delete(index);
     } else {
-      newExpanded.add(index)
+      newExpanded.add(index);
     }
-    setExpandedSections(newExpanded)
-  }
+    setExpandedSections(newExpanded);
+  };
 
   const copyToClipboard = () => {
-    const briefText = formatBriefAsText(brief)
-    navigator.clipboard.writeText(briefText)
-      .then(() => alert('Brief copied to clipboard!'))
-      .catch(() => alert('Failed to copy brief'))
-  }
+    const briefText = formatBriefAsText(brief);
+    navigator.clipboard
+      .writeText(briefText)
+      .then(() => alert("Brief copied to clipboard!"))
+      .catch(() => alert("Failed to copy brief"));
+  };
 
   const formatBriefAsText = (brief: BriefResponse): string => {
-    let text = `Title: ${brief.title}\n\n`
-    text += `Meta Description: ${brief.meta_description}\n\n`
-    text += `Outline:\n`
-    
+    let text = `Title: ${brief.title}\n\n`;
+    text += `Meta Description: ${brief.meta_description}\n\n`;
+    text += `Outline:\n`;
+
     brief.outline.forEach((section) => {
-      text += `\n${section.heading}\n`
+      text += `\n${section.heading}\n`;
       section.subpoints.forEach((point) => {
-        text += `  - ${point}\n`
-      })
-    })
-    
-    text += `\nKey Points:\n`
+        text += `  - ${point}\n`;
+      });
+    });
+
+    text += `\nKey Points:\n`;
     brief.key_points.forEach((point) => {
-      text += `- ${point}\n`
-    })
-    
-    text += `\nRecommendations:\n`
-    text += `- Tone: ${brief.recommendations.tone}\n`
-    text += `- Style: ${brief.recommendations.style}\n`
-    text += `- Length: ${brief.recommendations.length} words\n`
-    
-    return text
-  }
+      text += `- ${point}\n`;
+    });
+
+    text += `\nRecommendations:\n`;
+    text += `- Tone: ${brief.recommendations.tone}\n`;
+    text += `- Style: ${brief.recommendations.style}\n`;
+
+    return text;
+  };
 
   const generateArticle = async () => {
-    setIsGenerating(true)
-    setError(null)
-    
+    setIsGenerating(true);
+    setError(null);
+
     try {
-      const response = await fetch('http://localhost:8000/api/generate-article', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(brief),
-      })
+      const articleRequest: ArticleRequest = {
+        title: brief.title,
+        meta_description: brief.meta_description,
+        outline: brief.outline,
+        key_points: brief.key_points,
+        recommendations: brief.recommendations,
+        word_count: wordCount,
+      };
+
+      const response = await fetch(
+        "http://localhost:8000/api/generate-article",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(articleRequest),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const articleData: ArticleResponse = await response.json()
-      setArticle(articleData)
+      const articleData: ArticleResponse = await response.json();
+      setArticle(articleData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate article')
+      setError(
+        err instanceof Error ? err.message : "Failed to generate article"
+      );
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false);
     }
-  }
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -94,14 +112,45 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
             Copy Brief
           </button>
           <button
+            onClick={() => setShowWordCountInput(!showWordCountInput)}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm transition duration-200"
+          >
+            {showWordCountInput ? "Hide Options" : "Article Options"}
+          </button>
+          <button
             onClick={generateArticle}
             disabled={isGenerating}
             className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-md text-sm transition duration-200"
           >
-            {isGenerating ? 'Generating...' : 'Generate Article'}
+            {isGenerating ? "Generating..." : "Generate Article"}
           </button>
         </div>
       </div>
+
+      {showWordCountInput && (
+        <div className="mb-6 bg-gray-50 rounded-lg p-4">
+          <h3 className="text-lg font-semibold mb-3">Article Settings</h3>
+          <div className="flex items-center gap-4">
+            <label
+              htmlFor="word_count"
+              className="text-sm font-medium text-gray-700"
+            >
+              Word Count:
+            </label>
+            <input
+              type="number"
+              id="word_count"
+              value={wordCount}
+              onChange={(e) => setWordCount(parseInt(e.target.value) || 500)}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-24"
+              min="500"
+              max="5000"
+              step="100"
+            />
+            <span className="text-sm text-gray-500">words (500-5000)</span>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-6">
         <div>
@@ -125,14 +174,16 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
                 >
                   <span className="font-medium">{section.heading}</span>
                   <span className="text-gray-400">
-                    {expandedSections.has(index) ? '−' : '+'}
+                    {expandedSections.has(index) ? "−" : "+"}
                   </span>
                 </button>
                 {expandedSections.has(index) && (
                   <div className="px-4 pb-3">
                     <ul className="list-disc list-inside space-y-1">
                       {section.subpoints.map((point, idx) => (
-                        <li key={idx} className="text-gray-600">{point}</li>
+                        <li key={idx} className="text-gray-600">
+                          {point}
+                        </li>
                       ))}
                     </ul>
                   </div>
@@ -146,7 +197,9 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
           <h3 className="text-lg font-semibold mb-2">Key Points</h3>
           <ul className="list-disc list-inside space-y-1">
             {brief.key_points.map((point, index) => (
-              <li key={index} className="text-gray-600">{point}</li>
+              <li key={index} className="text-gray-600">
+                {point}
+              </li>
             ))}
           </ul>
         </div>
@@ -154,9 +207,12 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
         <div>
           <h3 className="text-lg font-semibold mb-2">Recommendations</h3>
           <div className="bg-gray-50 rounded-md p-4">
-            <p><strong>Tone:</strong> {brief.recommendations.tone}</p>
-            <p><strong>Style:</strong> {brief.recommendations.style}</p>
-            <p><strong>Target Length:</strong> {brief.recommendations.length} words</p>
+            <p>
+              <strong>Tone:</strong> {brief.recommendations.tone}
+            </p>
+            <p>
+              <strong>Style:</strong> {brief.recommendations.style}
+            </p>
           </div>
         </div>
       </div>
@@ -173,5 +229,5 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
         </div>
       )}
     </div>
-  )
+  );
 }

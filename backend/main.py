@@ -26,7 +26,6 @@ class BriefRequest(BaseModel):
     content_type: str = "blog"
     tone: str = "professional"
     target_audience: str = "general audience"
-    word_count: int = 1500
 
 class OutlineItem(BaseModel):
     heading: str
@@ -35,7 +34,6 @@ class OutlineItem(BaseModel):
 class Recommendations(BaseModel):
     tone: str
     style: str
-    length: int
 
 class BriefResponse(BaseModel):
     title: str
@@ -50,6 +48,7 @@ class ArticleRequest(BaseModel):
     outline: List[OutlineItem]
     key_points: List[str]
     recommendations: Recommendations
+    word_count: int = 500
 
 class ArticleResponse(BaseModel):
     title: str
@@ -68,8 +67,7 @@ async def generate_brief(request: BriefRequest):
             keyword=request.keyword,
             content_type=request.content_type,
             tone=request.tone,
-            target_audience=request.target_audience,
-            word_count=request.word_count
+            target_audience=request.target_audience
         )
         return brief
     except Exception as e:
@@ -86,12 +84,11 @@ async def generate_article(request: ArticleRequest):
             "recommendations": {
                 "tone": request.recommendations.tone,
                 "style": request.recommendations.style,
-                "length": request.recommendations.length,
                 "target_audience": "general audience"
             }
         }
         
-        article = await anthropic_service.generate_article_from_brief(brief_data)
+        article = await anthropic_service.generate_article_from_brief(brief_data, request.word_count)
         return article
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

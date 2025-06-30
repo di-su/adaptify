@@ -3,7 +3,6 @@ export interface BriefRequest {
   content_type: 'blog' | 'article' | 'guide'
   tone: 'professional' | 'casual' | 'technical'
   target_audience: string
-  word_count: number
 }
 
 export interface OutlineItem {
@@ -14,7 +13,6 @@ export interface OutlineItem {
 export interface Recommendations {
   tone: string
   style: string
-  length: number
 }
 
 export interface BriefResponse {
@@ -31,6 +29,7 @@ export interface ArticleRequest {
   outline: OutlineItem[]
   key_points: string[]
   recommendations: Recommendations
+  word_count: number
 }
 
 export interface ArticleResponse {

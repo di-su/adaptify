@@ -28,10 +28,9 @@ class AnthropicService:
         keyword: str,
         content_type: str,
         tone: str,
-        target_audience: str,
-        word_count: int
+        target_audience: str
     ) -> Dict[str, Any]:
-        prompt = self._create_prompt(keyword, content_type, tone, target_audience, word_count)
+        prompt = self._create_prompt(keyword, content_type, tone, target_audience)
         
         try:
             messages = [
@@ -63,12 +62,11 @@ class AnthropicService:
         keyword: str,
         content_type: str,
         tone: str,
-        target_audience: str,
-        word_count: int
+        target_audience: str
     ) -> str:
         return f"""
 Generate a comprehensive content brief for a {content_type} about "{keyword}" targeting {target_audience}.
-Use a {tone} tone and aim for approximately {word_count} words.
+Use a {tone} tone.
 
 Create a detailed content brief in JSON format with the following structure:
 {{
@@ -83,8 +81,7 @@ Create a detailed content brief in JSON format with the following structure:
     "key_points": ["Important concept 1", "Important concept 2", "Important concept 3", "Important concept 4"],
     "recommendations": {{
         "tone": "Specific tone guidance",
-        "style": "Writing style recommendations",
-        "length": {word_count}
+        "style": "Writing style recommendations"
     }}
 }}
 
@@ -120,16 +117,21 @@ Important: Return ONLY valid JSON, no markdown formatting or additional text."""
         if "recommendations" not in data or not isinstance(data["recommendations"], dict):
             data["recommendations"] = {
                 "tone": "professional",
-                "style": "informative",
-                "length": 1500
+                "style": "informative"
             }
         
         return data
     
-    async def generate_article_from_brief(self, brief_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def generate_article_from_brief(self, brief_data: Dict[str, Any], word_count: int = 500) -> Dict[str, Any]:
         try:
+            # Calculate word count distribution
+            num_sections = len(brief_data.get("outline", []))
+            intro_words = max(100, int(word_count * 0.15))  # 15% for intro, minimum 100 words
+            conclusion_words = max(100, int(word_count * 0.15))  # 15% for conclusion, minimum 100 words
+            section_words = max(150, int((word_count * 0.70) / max(1, num_sections)))  # 70% split across sections, minimum 150 per section
+            
             # Generate introduction
-            intro_content = await self._generate_introduction(brief_data)
+            intro_content = await self._generate_introduction(brief_data, intro_words)
             
             # Generate body sections
             sections_content = []
@@ -137,14 +139,16 @@ Important: Return ONLY valid JSON, no markdown formatting or additional text."""
                 section_content = await self._generate_section(
                     section, 
                     brief_data, 
-                    intro_content + "\n\n" + "\n\n".join(sections_content)
+                    intro_content + "\n\n" + "\n\n".join(sections_content),
+                    section_words
                 )
                 sections_content.append(section_content)
             
             # Generate conclusion
             conclusion_content = await self._generate_conclusion(
                 brief_data, 
-                intro_content + "\n\n" + "\n\n".join(sections_content)
+                intro_content + "\n\n" + "\n\n".join(sections_content),
+                conclusion_words
             )
             
             # Assemble complete article
@@ -165,17 +169,19 @@ Important: Return ONLY valid JSON, no markdown formatting or additional text."""
         except Exception as e:
             raise Exception(f"Article generation error: {str(e)}")
     
-    async def _generate_introduction(self, brief_data: Dict[str, Any]) -> str:
+    async def _generate_introduction(self, brief_data: Dict[str, Any], target_word_count: int) -> str:
         intro_template = PromptTemplate(
-            input_variables=["title", "key_points", "target_audience", "tone"],
+            input_variables=["title", "key_points", "target_audience", "tone", "word_count"],
             template="""Write an engaging introduction for an article titled "{title}".
 
 Target audience: {target_audience}
 Tone: {tone}
 Key points to preview: {key_points}
+Target word count: approximately {word_count} words
 
 Create a compelling hook, provide context, and end with a clear thesis statement.
 Write 2-3 paragraphs that draw readers in and set up the article's main points.
+Aim for approximately {word_count} words in the introduction.
 
 Return only the introduction text, no additional formatting."""
         )
@@ -188,24 +194,27 @@ Return only the introduction text, no additional formatting."""
             title=brief_data.get("title", ""),
             key_points=key_points_str,
             target_audience=brief_data.get("recommendations", {}).get("target_audience", "general audience"),
-            tone=brief_data.get("recommendations", {}).get("tone", "professional")
+            tone=brief_data.get("recommendations", {}).get("tone", "professional"),
+            word_count=target_word_count
         )
         
         return result.strip()
     
-    async def _generate_section(self, section: Dict[str, Any], brief_data: Dict[str, Any], previous_content: str) -> str:
+    async def _generate_section(self, section: Dict[str, Any], brief_data: Dict[str, Any], previous_content: str, target_word_count: int) -> str:
         section_template = PromptTemplate(
-            input_variables=["heading", "subpoints", "previous_content", "tone", "target_audience"],
+            input_variables=["heading", "subpoints", "previous_content", "tone", "target_audience", "word_count"],
             template="""Write a detailed section for the heading "{heading}".
 
 Subpoints to cover: {subpoints}
 Target audience: {target_audience}
 Tone: {tone}
 Previous content for context: {previous_content}
+Target word count: approximately {word_count} words
 
 Write 2-4 paragraphs that thoroughly cover the subpoints.
 Ensure smooth transitions from the previous content.
 Use examples and explanations appropriate for the target audience.
+Aim for approximately {word_count} words in this section.
 
 Return only the section content with the heading, no additional formatting."""
         )
@@ -219,19 +228,21 @@ Return only the section content with the heading, no additional formatting."""
             subpoints=subpoints_str,
             previous_content=previous_content[-500:] if len(previous_content) > 500 else previous_content,
             tone=brief_data.get("recommendations", {}).get("tone", "professional"),
-            target_audience=brief_data.get("recommendations", {}).get("target_audience", "general audience")
+            target_audience=brief_data.get("recommendations", {}).get("target_audience", "general audience"),
+            word_count=target_word_count
         )
         
         return result.strip()
     
-    async def _generate_conclusion(self, brief_data: Dict[str, Any], article_content: str) -> str:
+    async def _generate_conclusion(self, brief_data: Dict[str, Any], article_content: str, target_word_count: int) -> str:
         conclusion_template = PromptTemplate(
-            input_variables=["title", "key_points", "article_content", "tone"],
+            input_variables=["title", "key_points", "article_content", "tone", "word_count"],
             template="""Write a compelling conclusion for an article titled "{title}".
 
 Key points covered: {key_points}
 Tone: {tone}
 Article content for context: {article_content}
+Target word count: approximately {word_count} words
 
 Create a conclusion that:
 1. Summarizes the main points
@@ -240,6 +251,7 @@ Create a conclusion that:
 4. Ends with a memorable final thought
 
 Write 2-3 paragraphs that provide closure and inspire action.
+Aim for approximately {word_count} words in the conclusion.
 
 Return only the conclusion text, no additional formatting."""
         )
@@ -252,7 +264,8 @@ Return only the conclusion text, no additional formatting."""
             title=brief_data.get("title", ""),
             key_points=key_points_str,
             article_content=article_content[-800:] if len(article_content) > 800 else article_content,
-            tone=brief_data.get("recommendations", {}).get("tone", "professional")
+            tone=brief_data.get("recommendations", {}).get("tone", "professional"),
+            word_count=target_word_count
         )
         
         return result.strip()
