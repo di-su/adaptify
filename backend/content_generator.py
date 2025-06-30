@@ -1,6 +1,6 @@
 from typing import Dict, Any
 from langchain.chains import LLMChain
-from .content_prompts import ContentPrompts
+from content_prompts import ContentPrompts
 
 class ContentGenerator:
     def __init__(self, llm_client):

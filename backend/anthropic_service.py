@@ -3,10 +3,10 @@ from typing import Dict, Any
 from langchain_anthropic import ChatAnthropic
 from langchain.schema import HumanMessage, SystemMessage
 
-from .anthropic_config import AnthropicConfig
-from .content_prompts import ContentPrompts
-from .response_validator import ResponseValidator
-from .content_generator import ContentGenerator
+from anthropic_config import AnthropicConfig
+from content_prompts import ContentPrompts
+from response_validator import ResponseValidator
+from content_generator import ContentGenerator
 
 
 class AnthropicService:
