@@ -7,12 +7,14 @@ This document outlines the implementation plan for adding a second step to our c
 ## Current State
 
 **Step 1 (Existing):** User inputs → Content Brief (JSON)
+
 - Frontend: Form with keyword, content type, tone, audience, word count
 - Backend: Direct Anthropic API call returning structured brief
 
 ## Proposed Enhancement
 
 **Step 2 (New):** Content Brief → Full Article
+
 - Frontend: "Generate Article" button on brief display
 - Backend: LangChain chain processing brief into complete article
 
@@ -21,18 +23,21 @@ This document outlines the implementation plan for adding a second step to our c
 ### 1. UI Updates
 
 #### BriefDisplay.tsx
+
 - Add "Generate Article" button below existing brief display
 - Add loading state for article generation
 - Add article display component/section
 - Handle article generation API call
 
 #### New Component: ArticleDisplay.tsx
+
 - Display generated article with proper formatting
 - Section headings (H1, H2, H3)
 - Markdown/HTML rendering
 - Export options (copy, download)
 
 #### State Management
+
 - Add article data to component state
 - Track generation status (idle, loading, complete, error)
 - Handle article data persistence
@@ -45,7 +50,7 @@ const generateArticle = async (briefData: BriefData) => {
   const response = await fetch('/api/generate-article', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(briefData)
+    body: JSON.stringify(briefData),
   });
   return response.json();
 };
@@ -91,7 +96,7 @@ async def generate_article_from_brief(self, brief_data: dict) -> dict:
    - Output: Engaging introduction paragraph
    - Template: Hook + context + thesis statement
 
-2. **Section Generation Chain** 
+2. **Section Generation Chain**
    - Input: Brief outline sections + previous content
    - Output: Detailed section content
    - Template: Section heading + body paragraphs + transitions
@@ -117,10 +122,10 @@ def _create_article_generation_chain(self):
         Target audience: {audience}
         Tone: {tone}
         Key points to preview: {key_points}
-        
+
         Create a hook, provide context, and end with a clear thesis statement."""
     )
-    
+
     # Section generation prompt
     section_template = PromptTemplate(
         input_variables=["heading", "subpoints", "previous_content", "tone"],
@@ -128,10 +133,10 @@ def _create_article_generation_chain(self):
         Subpoints to cover: {subpoints}
         Previous content for context: {previous_content}
         Tone: {tone}
-        
+
         Write 2-3 paragraphs with smooth transitions."""
     )
-    
+
     # Create sequential chain
     return SequentialChain(
         chains=[intro_chain, section_chain, conclusion_chain, assembly_chain],
@@ -143,26 +148,31 @@ def _create_article_generation_chain(self):
 ## Benefits of LangChain Approach
 
 ### 1. **Structured Processing**
+
 - Each article section gets focused attention
 - Consistent quality across all parts
 - Better coherence between sections
 
 ### 2. **Memory & Context**
+
 - Previous sections inform later ones
 - Maintains tone and style throughout
 - Avoids repetition and ensures flow
 
 ### 3. **Template Reusability**
+
 - Standardized prompts for each article type
 - Easy to customize for different content types
 - Consistent output formatting
 
 ### 4. **Error Handling**
+
 - Individual chain failures can be isolated
 - Retry specific sections without regenerating entire article
 - Better debugging and monitoring
 
 ### 5. **Scalability**
+
 - Easy to add new chain steps (e.g., SEO optimization, fact-checking)
 - Modular design allows for feature expansion
 - Can add parallel chains for different article formats
@@ -170,18 +180,21 @@ def _create_article_generation_chain(self):
 ## Implementation Phases
 
 ### Phase 1: Backend Chain Development
+
 1. Install additional LangChain dependencies
 2. Create article generation chains
 3. Test with sample brief data
 4. Add new API endpoint
 
 ### Phase 2: Frontend Integration
+
 1. Add "Generate Article" button to BriefDisplay
 2. Create ArticleDisplay component
 3. Implement API integration
 4. Add loading and error states
 
 ### Phase 3: Enhancement & Polish
+
 1. Add article export functionality
 2. Implement article editing capabilities
 3. Add multiple format options (HTML, Markdown, PDF)
@@ -209,16 +222,19 @@ def _create_article_generation_chain(self):
 ## Technical Considerations
 
 ### Performance
+
 - Article generation will take 10-30 seconds
 - Need proper loading states and progress indicators
 - Consider implementing WebSocket for real-time updates
 
 ### Cost Management
+
 - Multiple API calls per article generation
 - Implement usage tracking and rate limiting
 - Consider caching for similar requests
 
 ### User Experience
+
 - Clear indication of generation progress
 - Ability to cancel generation
 - Option to regenerate specific sections

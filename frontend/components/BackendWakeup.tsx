@@ -11,7 +11,9 @@ export default function BackendWakeup() {
           signal: AbortSignal.timeout(5000),
         });
       } catch (error) {
-        console.log('Backend wake-up call failed (this is normal if backend is starting up)');
+        console.log(
+          'Backend wake-up call failed (this is normal if backend is starting up)'
+        );
       }
     };
 
