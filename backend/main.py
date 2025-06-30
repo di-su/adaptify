@@ -48,7 +48,6 @@ class ArticleRequest(BaseModel):
     outline: List[OutlineItem]
     key_points: List[str]
     recommendations: Recommendations
-    word_count: int = 500
 
 class ArticleResponse(BaseModel):
     title: str
@@ -88,7 +87,7 @@ async def generate_article(request: ArticleRequest):
             }
         }
         
-        article = await anthropic_service.generate_article_from_brief(brief_data, request.word_count)
+        article = await anthropic_service.generate_article_from_brief(brief_data)
         return article
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

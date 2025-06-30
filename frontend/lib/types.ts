@@ -29,7 +29,6 @@ export interface ArticleRequest {
   outline: OutlineItem[]
   key_points: string[]
   recommendations: Recommendations
-  word_count: number
 }
 
 export interface ArticleResponse {

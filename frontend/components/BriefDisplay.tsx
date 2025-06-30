@@ -15,8 +15,6 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
   const [article, setArticle] = useState<ArticleResponse | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [wordCount, setWordCount] = useState<number>(500);
-  const [showWordCountInput, setShowWordCountInput] = useState(false);
 
   const toggleSection = (index: number) => {
     const newExpanded = new Set(expandedSections);
@@ -71,7 +69,6 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
         outline: brief.outline,
         key_points: brief.key_points,
         recommendations: brief.recommendations,
-        word_count: wordCount,
       };
 
       const response = await fetch(
@@ -112,12 +109,6 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
             Copy Brief
           </button>
           <button
-            onClick={() => setShowWordCountInput(!showWordCountInput)}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm transition duration-200"
-          >
-            {showWordCountInput ? "Hide Options" : "Article Options"}
-          </button>
-          <button
             onClick={generateArticle}
             disabled={isGenerating}
             className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-md text-sm transition duration-200"
@@ -127,30 +118,6 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
         </div>
       </div>
 
-      {showWordCountInput && (
-        <div className="mb-6 bg-gray-50 rounded-lg p-4">
-          <h3 className="text-lg font-semibold mb-3">Article Settings</h3>
-          <div className="flex items-center gap-4">
-            <label
-              htmlFor="word_count"
-              className="text-sm font-medium text-gray-700"
-            >
-              Word Count:
-            </label>
-            <input
-              type="number"
-              id="word_count"
-              value={wordCount}
-              onChange={(e) => setWordCount(parseInt(e.target.value) || 500)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-24"
-              min="500"
-              max="5000"
-              step="100"
-            />
-            <span className="text-sm text-gray-500">words (500-5000)</span>
-          </div>
-        </div>
-      )}
 
       <div className="space-y-6">
         <div>
