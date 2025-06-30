@@ -67,6 +67,11 @@ async def root():
     return {"message": "Content Brief Generator API"}
 
 
+@app.get("/api/health")
+async def health_check():
+    return {"status": "healthy", "service": "Content Brief Generator API"}
+
+
 @app.post("/api/generate-brief", response_model=BriefResponse)
 async def generate_brief(request: BriefRequest):
     try:
