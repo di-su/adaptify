@@ -1,42 +1,44 @@
-'use client'
+'use client';
 
-import { ArticleResponse } from '@/lib/types'
-import { useState } from 'react'
+import { ArticleResponse } from '@/lib/types';
+import { useState } from 'react';
 
 interface ArticleDisplayProps {
-  article: ArticleResponse
+  article: ArticleResponse;
 }
 
 export default function ArticleDisplay({ article }: ArticleDisplayProps) {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(article.content)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(article.content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy text: ', err)
+      console.error('Failed to copy text: ', err);
     }
-  }
+  };
 
   const handleDownload = () => {
-    const blob = new Blob([article.content], { type: 'text/markdown' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${article.title.toLowerCase().replace(/\s+/g, '-')}.md`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }
+    const blob = new Blob([article.content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${article.title.toLowerCase().replace(/\s+/g, '-')}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Generated Article</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Generated Article
+          </h2>
           <div className="flex gap-4 text-sm text-gray-600">
             <span>{article.word_count} words</span>
             <span>{article.sections} sections</span>
@@ -66,5 +68,5 @@ export default function ArticleDisplay({ article }: ArticleDisplayProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

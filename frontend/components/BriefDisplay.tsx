@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { BriefResponse, ArticleResponse, ArticleRequest } from "@/lib/types";
-import ArticleDisplay from "./ArticleDisplay";
+import { useState } from 'react';
+import { BriefResponse, ArticleResponse, ArticleRequest } from '@/lib/types';
+import ArticleDisplay from './ArticleDisplay';
 
 interface BriefDisplayProps {
   brief: BriefResponse;
@@ -30,8 +30,8 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
     const briefText = formatBriefAsText(brief);
     navigator.clipboard
       .writeText(briefText)
-      .then(() => alert("Brief copied to clipboard!"))
-      .catch(() => alert("Failed to copy brief"));
+      .then(() => alert('Brief copied to clipboard!'))
+      .catch(() => alert('Failed to copy brief'));
   };
 
   const formatBriefAsText = (brief: BriefResponse): string => {
@@ -39,15 +39,15 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
     text += `Meta Description: ${brief.meta_description}\n\n`;
     text += `Outline:\n`;
 
-    brief.outline.forEach((section) => {
+    brief.outline.forEach(section => {
       text += `\n${section.heading}\n`;
-      section.subpoints.forEach((point) => {
+      section.subpoints.forEach(point => {
         text += `  - ${point}\n`;
       });
     });
 
     text += `\nKey Points:\n`;
-    brief.key_points.forEach((point) => {
+    brief.key_points.forEach(point => {
       text += `- ${point}\n`;
     });
 
@@ -72,11 +72,11 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
       };
 
       const response = await fetch(
-        "http://localhost:8000/api/generate-article",
+        'http://localhost:8000/api/generate-article',
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(articleRequest),
         }
@@ -90,7 +90,7 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
       setArticle(articleData);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to generate article"
+        err instanceof Error ? err.message : 'Failed to generate article'
       );
     } finally {
       setIsGenerating(false);
@@ -113,11 +113,10 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
             disabled={isGenerating}
             className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-md text-sm transition duration-200"
           >
-            {isGenerating ? "Generating..." : "Generate Article"}
+            {isGenerating ? 'Generating...' : 'Generate Article'}
           </button>
         </div>
       </div>
-
 
       <div className="space-y-6">
         <div>
@@ -141,7 +140,7 @@ export default function BriefDisplay({ brief }: BriefDisplayProps) {
                 >
                   <span className="font-medium">{section.heading}</span>
                   <span className="text-gray-400">
-                    {expandedSections.has(index) ? "−" : "+"}
+                    {expandedSections.has(index) ? '−' : '+'}
                   </span>
                 </button>
                 {expandedSections.has(index) && (

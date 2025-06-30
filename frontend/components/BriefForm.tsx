@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import axios from "axios";
-import { BriefRequest, BriefResponse } from "@/lib/types";
+import { useState } from 'react';
+import axios from 'axios';
+import { BriefRequest, BriefResponse } from '@/lib/types';
 
 interface BriefFormProps {
   onBriefGenerated: (brief: BriefResponse) => void;
@@ -18,17 +18,17 @@ export default function BriefForm({
   setLoading,
 }: BriefFormProps) {
   const [formData, setFormData] = useState<BriefRequest>({
-    keyword: "",
-    content_type: "blog",
-    tone: "professional",
-    target_audience: "",
+    keyword: '',
+    content_type: 'blog',
+    tone: 'professional',
+    target_audience: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.keyword.trim()) {
-      onError("Please enter a keyword");
+      onError('Please enter a keyword');
       return;
     }
 
@@ -43,9 +43,9 @@ export default function BriefForm({
       onBriefGenerated(response.data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        onError(error.response?.data?.detail || "Failed to generate brief");
+        onError(error.response?.data?.detail || 'Failed to generate brief');
       } else {
-        onError("An unexpected error occurred");
+        onError('An unexpected error occurred');
       }
     } finally {
       setLoading(false);
@@ -67,9 +67,7 @@ export default function BriefForm({
           type="text"
           id="keyword"
           value={formData.keyword}
-          onChange={(e) =>
-            setFormData({ ...formData, keyword: e.target.value })
-          }
+          onChange={e => setFormData({ ...formData, keyword: e.target.value })}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="e.g., fasting, coffee"
           disabled={loading}
@@ -86,10 +84,10 @@ export default function BriefForm({
         <select
           id="content_type"
           value={formData.content_type}
-          onChange={(e) =>
+          onChange={e =>
             setFormData({
               ...formData,
-              content_type: e.target.value as BriefRequest["content_type"],
+              content_type: e.target.value as BriefRequest['content_type'],
             })
           }
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -111,10 +109,10 @@ export default function BriefForm({
         <select
           id="tone"
           value={formData.tone}
-          onChange={(e) =>
+          onChange={e =>
             setFormData({
               ...formData,
-              tone: e.target.value as BriefRequest["tone"],
+              tone: e.target.value as BriefRequest['tone'],
             })
           }
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -137,7 +135,7 @@ export default function BriefForm({
           type="text"
           id="target_audience"
           value={formData.target_audience}
-          onChange={(e) =>
+          onChange={e =>
             setFormData({ ...formData, target_audience: e.target.value })
           }
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -151,7 +149,7 @@ export default function BriefForm({
         disabled={loading}
         className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 disabled:bg-gray-400"
       >
-        {loading ? "Generating..." : "Generate Brief"}
+        {loading ? 'Generating...' : 'Generate Brief'}
       </button>
     </form>
   );

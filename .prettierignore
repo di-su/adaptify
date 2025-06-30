@@ -1,0 +1,11 @@
+node_modules/
+.next/
+dist/
+build/
+*.pyc
+__pycache__/
+myenv/
+.env
+.env.local
+.git/
+*.md
