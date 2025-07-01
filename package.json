@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "test:frontend": "cd frontend && npm test",
+    "test:backend": "cd backend && ./run_tests.sh",
+    "test": "npm run test:frontend && npm run test:backend"
+  },
   "devDependencies": {
     "prettier": "^3.6.2"
   }
