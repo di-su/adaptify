@@ -1,7 +1,7 @@
 'use client';
 
 import { ArticleResponse } from '@/lib/types';
-import { useState } from 'react';
+import { useDocumentActions } from '@/hooks/useDocumentActions';
 
 interface ArticleDisplayProps {
   article: ArticleResponse;
@@ -14,29 +14,10 @@ interface ArticleDisplayProps {
 }
 
 export default function ArticleDisplay({ article, briefData }: ArticleDisplayProps) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(article.content);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-    }
-  };
-
-  const handleDownload = () => {
-    const blob = new Blob([article.content], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${article.title.toLowerCase().replace(/\s+/g, '-')}.md`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+  const { copied, handleCopy, handleDownload } = useDocumentActions(
+    article.content,
+    article.title
+  );
 
 
   return (

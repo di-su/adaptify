@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import axios from 'axios';
-import { BriefRequest, BriefResponse } from '@/lib/types';
+import { BriefResponse, BriefRequest } from '@/lib/types';
+import { useBriefForm } from '@/hooks/useBriefForm';
 
 interface BriefFormProps {
   onBriefGenerated: (brief: BriefResponse) => void;
@@ -19,40 +18,22 @@ export default function BriefForm({
   setLoading,
   onFormDataChange,
 }: BriefFormProps) {
-  const [formData, setFormData] = useState<BriefRequest>({
-    keyword: '',
-    content_type: 'blog',
-    tone: 'professional',
-    target_audience: '',
-  });
+  const { formData, updateField, submitForm } = useBriefForm();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!formData.keyword.trim()) {
-      onError('Please enter a keyword');
-      return;
-    }
-
     setLoading(true);
 
-    try {
-      const response = await axios.post<BriefResponse>(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/generate-brief`,
-        formData
-      );
-
-      onBriefGenerated(response.data);
+    const result = await submitForm();
+    
+    if (result.error) {
+      onError(result.error);
+    } else if (result.data) {
+      onBriefGenerated(result.data);
       onFormDataChange?.(formData);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        onError(error.response?.data?.detail || 'Failed to generate brief');
-      } else {
-        onError('An unexpected error occurred');
-      }
-    } finally {
-      setLoading(false);
     }
+    
+    setLoading(false);
   };
 
   return (
@@ -72,7 +53,7 @@ export default function BriefForm({
           type="text"
           id="keyword"
           value={formData.keyword}
-          onChange={e => setFormData({ ...formData, keyword: e.target.value })}
+          onChange={e => updateField('keyword', e.target.value)}
           className="input-modern"
           placeholder="e.g., sustainable fashion, remote work tips"
           disabled={loading}
@@ -91,12 +72,7 @@ export default function BriefForm({
           <select
             id="content_type"
             value={formData.content_type}
-            onChange={e =>
-              setFormData({
-                ...formData,
-                content_type: e.target.value as BriefRequest['content_type'],
-              })
-            }
+            onChange={e => updateField('content_type', e.target.value)}
             className="input-modern"
             disabled={loading}
           >
@@ -116,12 +92,7 @@ export default function BriefForm({
           <select
             id="tone"
             value={formData.tone}
-            onChange={e =>
-              setFormData({
-                ...formData,
-                tone: e.target.value as BriefRequest['tone'],
-              })
-            }
+            onChange={e => updateField('tone', e.target.value)}
             className="input-modern"
             disabled={loading}
           >
@@ -147,9 +118,7 @@ export default function BriefForm({
           type="text"
           id="target_audience"
           value={formData.target_audience}
-          onChange={e =>
-            setFormData({ ...formData, target_audience: e.target.value })
-          }
+          onChange={e => updateField('target_audience', e.target.value)}
           className="input-modern"
           placeholder="e.g., small business owners, fitness enthusiasts, tech professionals"
           disabled={loading}

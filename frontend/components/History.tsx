@@ -1,57 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { getArticles, Article } from '@/lib/articleService';
+import { useArticleHistory } from '@/hooks/useArticleHistory';
+import HistoryArticleItem from './HistoryArticleItem';
 
 export default function History() {
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-
-  useEffect(() => {
-    loadArticles();
-  }, []);
-
-  const loadArticles = async () => {
-    try {
-      setLoading(true);
-      const fetchedArticles = await getArticles();
-      setArticles(fetchedArticles);
-    } catch (err) {
-      setError('Failed to load articles');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    articles,
+    loading,
+    error,
+    selectedArticle,
+    toggleArticle
+  } = useArticleHistory();
 
   const formatDate = (timestamp: any) => {
     return timestamp?.toDate?.()?.toLocaleDateString() || 'Unknown date';
   };
 
-  const handleCopy = async (article: Article) => {
-    try {
-      await navigator.clipboard.writeText(article.content);
-      setCopiedId(article.id || '');
-      setTimeout(() => setCopiedId(null), 2000);
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-    }
-  };
-
-  const handleDownload = (article: Article) => {
-    const blob = new Blob([article.content], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${article.title.toLowerCase().replace(/\s+/g, '-')}.md`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
 
   if (loading) {
     return (
@@ -83,66 +47,13 @@ export default function History() {
       ) : (
         <div className="grid gap-4">
           {articles.map((article) => (
-            <div
+            <HistoryArticleItem
               key={article.id}
-              className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
-              onClick={() => setSelectedArticle(selectedArticle?.id === article.id ? null : article)}
-            >
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-semibold text-lg text-gray-900 truncate">
-                  {article.title}
-                </h3>
-                <span className="text-xs text-gray-500 ml-2 whitespace-nowrap">
-                  {formatDate(article.createdAt)}
-                </span>
-              </div>
-              
-              <div className="flex gap-2 mb-2 text-xs">
-                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                  {article.contentType}
-                </span>
-                <span className="bg-green-100 text-green-800 px-2 py-1 rounded">
-                  {article.tone}
-                </span>
-                <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded">
-                  {article.targetAudience}
-                </span>
-              </div>
-              
-              <p className="text-sm text-gray-600 mb-2">
-                Keywords: {article.keywords}
-              </p>
-
-              {selectedArticle?.id === article.id && (
-                <div className="mt-4 pt-4 border-t">
-                  <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto">
-                    <pre className="whitespace-pre-wrap font-sans text-sm text-gray-800 leading-relaxed">
-                      {article.content}
-                    </pre>
-                  </div>
-                  <div className="flex gap-2 mt-4">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopy(article);
-                      }}
-                      className="px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors cursor-pointer"
-                    >
-                      {copiedId === article.id ? 'Copied!' : 'Copy'}
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDownload(article);
-                      }}
-                      className="px-3 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors cursor-pointer"
-                    >
-                      Download
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+              article={article}
+              isSelected={selectedArticle?.id === article.id}
+              onToggle={() => toggleArticle(article)}
+              formatDate={formatDate}
+            />
           ))}
         </div>
       )}

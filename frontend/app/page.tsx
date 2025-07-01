@@ -1,71 +1,50 @@
 'use client';
 
-import { useState } from 'react';
 import BriefForm from '@/components/BriefForm';
 import BriefDisplay from '@/components/BriefDisplay';
 import ArticleDisplay from '@/components/ArticleDisplay';
 import History from '@/components/History';
-import { BriefResponse, ArticleResponse } from '@/lib/types';
-
-type Tab = 'generator' | 'history';
-type Stage = 'form' | 'brief' | 'article';
+import { useStageNavigation } from '@/hooks/useStageNavigation';
+import { useContentGeneration } from '@/hooks/useContentGeneration';
+import { useTabNavigation } from '@/hooks/useTabNavigation';
+import type { BriefResponse, ArticleResponse } from '@/lib/types';
+import type { Stage } from '@/hooks/useStageNavigation';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<Tab>('generator');
-  const [stage, setStage] = useState<Stage>('form');
-  const [brief, setBrief] = useState<BriefResponse | null>(null);
-  const [article, setArticle] = useState<ArticleResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [briefFormData, setBriefFormData] = useState<any>(null);
+  const { activeTab, setActiveTab } = useTabNavigation();
+  const { stage, goToStage, resetFlow, setStage } = useStageNavigation();
+  const {
+    brief,
+    article,
+    loading,
+    error,
+    briefFormData,
+    handleBriefGenerated,
+    handleFormDataChange,
+    handleError,
+    handleArticleGenerated,
+    setLoading,
+    resetContent
+  } = useContentGeneration();
 
-  const handleBriefGenerated = (newBrief: BriefResponse) => {
-    setBrief(newBrief);
-    setError(null);
+  const handleBriefGeneratedWithStage = (newBrief: BriefResponse) => {
+    handleBriefGenerated(newBrief);
     setStage('brief');
   };
 
-  const handleFormDataChange = (data: any) => {
-    setBriefFormData(data);
-  };
-
-  const handleError = (errorMessage: string) => {
-    setError(errorMessage);
-    setBrief(null);
-  };
-
-  const handleArticleGenerated = async (newArticle: ArticleResponse) => {
-    setArticle(newArticle);
+  const handleArticleGeneratedWithStage = async (newArticle: ArticleResponse) => {
+    await handleArticleGenerated(newArticle);
     setStage('article');
-    
-    // Auto-save to Firebase
-    if (briefFormData) {
-      try {
-        const { saveArticle } = await import('@/lib/articleService');
-        await saveArticle({
-          title: newArticle.title,
-          content: newArticle.content,
-          keywords: briefFormData.keyword,
-          contentType: briefFormData.content_type,
-          tone: briefFormData.tone,
-          targetAudience: briefFormData.target_audience
-        });
-      } catch (error) {
-        console.error('Failed to save article:', error);
-      }
-    }
   };
 
-  const goToStage = (newStage: Stage) => {
-    setStage(newStage);
-    setError(null);
+  const goToStageWithError = (newStage: Stage) => {
+    goToStage(newStage);
+    if (error) handleError('');
   };
 
-  const resetFlow = () => {
-    setStage('form');
-    setBrief(null);
-    setArticle(null);
-    setError(null);
+  const resetAll = () => {
+    resetFlow();
+    resetContent();
   };
 
   return (
@@ -229,7 +208,7 @@ export default function Home() {
                 ⏱️ Generation may take up to 60 seconds
               </p>
               <BriefForm
-                onBriefGenerated={handleBriefGenerated}
+                onBriefGenerated={handleBriefGeneratedWithStage}
                 onError={handleError}
                 loading={loading}
                 setLoading={setLoading}
@@ -251,13 +230,13 @@ export default function Home() {
                 </div>
                 <div className="flex gap-3">
                   <button
-                    onClick={() => goToStage('form')}
+                    onClick={() => goToStageWithError('form')}
                     className="btn-secondary text-sm"
                   >
                     ← Edit Brief
                   </button>
                   <button
-                    onClick={resetFlow}
+                    onClick={resetAll}
                     className="text-gray-500 hover:text-gray-700 font-medium text-sm"
                   >
                     Start Over
@@ -266,7 +245,7 @@ export default function Home() {
               </div>
               <BriefDisplay
                 brief={brief}
-                onArticleGenerated={handleArticleGenerated}
+                onArticleGenerated={handleArticleGeneratedWithStage}
                 onError={handleError}
               />
             </div>
@@ -286,12 +265,12 @@ export default function Home() {
                 </div>
                 <div className="flex gap-3">
                   <button
-                    onClick={() => goToStage('brief')}
+                    onClick={() => goToStageWithError('brief')}
                     className="btn-secondary text-sm"
                   >
                     ← Back to Brief
                   </button>
-                  <button onClick={resetFlow} className="btn-primary text-sm">
+                  <button onClick={resetAll} className="btn-primary text-sm">
                     Create New Content
                   </button>
                 </div>

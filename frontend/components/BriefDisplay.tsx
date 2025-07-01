@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { BriefResponse, ArticleResponse, ArticleRequest } from '@/lib/types';
+import { BriefResponse, ArticleResponse } from '@/lib/types';
+import { useExpandableSection } from '@/hooks/useExpandableSection';
+import { useArticleGeneration } from '@/hooks/useArticleGeneration';
 
 interface BriefDisplayProps {
   brief: BriefResponse;
@@ -14,21 +15,8 @@ export default function BriefDisplay({
   onArticleGenerated,
   onError,
 }: BriefDisplayProps) {
-  const [expandedSections, setExpandedSections] = useState<Set<number>>(
-    new Set()
-  );
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const toggleSection = (index: number) => {
-    const newExpanded = new Set(expandedSections);
-    if (newExpanded.has(index)) {
-      newExpanded.delete(index);
-    } else {
-      newExpanded.add(index);
-    }
-    setExpandedSections(newExpanded);
-  };
+  const { toggleSection, isExpanded } = useExpandableSection(brief.outline.length);
+  const { generateArticle, isGenerating, error } = useArticleGeneration();
 
   const copyToClipboard = () => {
     const briefText = formatBriefAsText(brief);
@@ -62,47 +50,12 @@ export default function BriefDisplay({
     return text;
   };
 
-  const generateArticle = async () => {
-    setIsGenerating(true);
-    setError(null);
-
-    try {
-      const articleRequest: ArticleRequest = {
-        title: brief.title,
-        meta_description: brief.meta_description,
-        outline: brief.outline,
-        key_points: brief.key_points,
-        recommendations: brief.recommendations,
-      };
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/generate-article`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(articleRequest),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const articleData: ArticleResponse = await response.json();
-      if (onArticleGenerated) {
-        onArticleGenerated(articleData);
-      }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to generate article';
-      setError(errorMessage);
-      if (onError) {
-        onError(errorMessage);
-      }
-    } finally {
-      setIsGenerating(false);
+  const handleGenerateArticle = async () => {
+    const articleData = await generateArticle(brief);
+    if (articleData && onArticleGenerated) {
+      onArticleGenerated(articleData);
+    } else if (error && onError) {
+      onError(error);
     }
   };
 
@@ -143,7 +96,7 @@ export default function BriefDisplay({
             Copy Brief
           </button>
           <button
-            onClick={generateArticle}
+            onClick={handleGenerateArticle}
             disabled={isGenerating}
             className="btn-primary text-sm flex items-center gap-2"
           >
@@ -232,7 +185,7 @@ export default function BriefDisplay({
                     </span>
                   </div>
                   <svg
-                    className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${expandedSections.has(index) ? 'rotate-180' : ''}`}
+                    className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isExpanded(index) ? 'rotate-180' : ''}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -245,7 +198,7 @@ export default function BriefDisplay({
                     />
                   </svg>
                 </button>
-                {expandedSections.has(index) && (
+                {isExpanded(index) && (
                   <div className="px-5 pb-4 pt-2 bg-gray-50 border-t border-gray-100">
                     <ul className="space-y-2">
                       {section.subpoints.map((point, idx) => (
