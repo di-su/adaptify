@@ -49,7 +49,7 @@ async def generate_brief(request: BriefRequest):
 @app.post("/api/generate-article", response_model=ArticleResponse)
 async def generate_article(request: ArticleRequest):
     try:
-        brief_data = request.dict()
+        brief_data = request.model_dump()
         article = await langchain_service.generate_article_from_brief(brief_data)
         return article
     except Exception as e:
