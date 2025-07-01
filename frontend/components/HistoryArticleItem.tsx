@@ -27,28 +27,28 @@ export default function HistoryArticleItem({
       className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
       onClick={onToggle}
     >
-      <div className="flex justify-between items-start mb-2">
-        <h3 className="font-semibold text-lg text-gray-900 truncate">
+      <div className="flex justify-between items-start gap-2 mb-2">
+        <h3 className="font-semibold text-base text-gray-900 line-clamp-2 flex-1">
           {article.title}
         </h3>
-        <span className="text-xs text-gray-500 ml-2 whitespace-nowrap">
+        <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
           {formatDate(article.createdAt)}
         </span>
       </div>
       
-      <div className="flex gap-2 mb-2 text-xs">
+      <div className="flex flex-wrap gap-2 text-xs">
         {article.keywords && (
-          <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
+          <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded inline-block">
             {article.keywords}
           </span>
         )}
         {article.contentType && (
-          <span className="bg-green-100 text-green-700 px-2 py-1 rounded">
+          <span className="bg-green-100 text-green-700 px-2 py-1 rounded inline-block">
             {article.contentType}
           </span>
         )}
         {article.tone && (
-          <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded">
+          <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded inline-block">
             {article.tone}
           </span>
         )}
