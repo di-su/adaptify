@@ -1,7 +1,7 @@
 'use client';
 
 import { ArticleResponse } from '@/lib/types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { saveArticle } from '@/lib/articleService';
 
 interface ArticleDisplayProps {
@@ -16,7 +16,6 @@ interface ArticleDisplayProps {
 
 export default function ArticleDisplay({ article, briefData }: ArticleDisplayProps) {
   const [copied, setCopied] = useState(false);
-  const [saved, setSaved] = useState(false);
 
   const handleCopy = async () => {
     try {
@@ -40,24 +39,26 @@ export default function ArticleDisplay({ article, briefData }: ArticleDisplayPro
     URL.revokeObjectURL(url);
   };
 
-  const handleSave = async () => {
-    if (!briefData) return;
-    
-    try {
-      await saveArticle({
-        title: article.title,
-        content: article.content,
-        keywords: briefData.keywords,
-        contentType: briefData.contentType,
-        tone: briefData.tone,
-        targetAudience: briefData.targetAudience
-      });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    } catch (error) {
-      console.error('Failed to save article:', error);
-    }
-  };
+  useEffect(() => {
+    const autoSave = async () => {
+      if (!briefData) return;
+      
+      try {
+        await saveArticle({
+          title: article.title,
+          content: article.content,
+          keywords: briefData.keywords,
+          contentType: briefData.contentType,
+          tone: briefData.tone,
+          targetAudience: briefData.targetAudience
+        });
+      } catch (error) {
+        console.error('Failed to save article:', error);
+      }
+    };
+
+    autoSave();
+  }, [article, briefData]);
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
@@ -84,14 +85,6 @@ export default function ArticleDisplay({ article, briefData }: ArticleDisplayPro
           >
             Download
           </button>
-          {briefData && (
-            <button
-              onClick={handleSave}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              {saved ? 'Saved!' : 'Save to History'}
-            </button>
-          )}
         </div>
       </div>
 

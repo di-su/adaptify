@@ -8,6 +8,7 @@ export default function History() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     loadArticles();
@@ -28,6 +29,28 @@ export default function History() {
 
   const formatDate = (timestamp: any) => {
     return timestamp?.toDate?.()?.toLocaleDateString() || 'Unknown date';
+  };
+
+  const handleCopy = async (article: Article) => {
+    try {
+      await navigator.clipboard.writeText(article.content);
+      setCopiedId(article.id || '');
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  const handleDownload = (article: Article) => {
+    const blob = new Blob([article.content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${article.title.toLowerCase().replace(/\s+/g, '-')}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   if (loading) {
@@ -96,6 +119,20 @@ export default function History() {
                     <pre className="whitespace-pre-wrap font-sans text-sm text-gray-800 leading-relaxed">
                       {article.content}
                     </pre>
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <button
+                      onClick={() => handleCopy(article)}
+                      className="px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
+                    >
+                      {copiedId === article.id ? 'Copied!' : 'Copy'}
+                    </button>
+                    <button
+                      onClick={() => handleDownload(article)}
+                      className="px-3 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors"
+                    >
+                      Download
+                    </button>
                   </div>
                 </div>
               )}
