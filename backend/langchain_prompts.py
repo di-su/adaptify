@@ -1,10 +1,15 @@
-class ContentPrompts:
+from langchain.prompts import PromptTemplate
+
+
+class LangChainPrompts:
+    """LangChain prompt templates for content generation."""
+    
     @staticmethod
-    def get_brief_prompt(
-        keyword: str, content_type: str, tone: str, target_audience: str
-    ) -> str:
-        return f"""
-Generate a comprehensive content brief for a {content_type} about "{keyword}" targeting {target_audience}.
+    def get_brief_prompt():
+        """Prompt template for generating content briefs."""
+        return PromptTemplate(
+            input_variables=["keyword", "content_type", "tone", "target_audience"],
+            template="""Generate a comprehensive content brief for a {content_type} about "{keyword}" targeting {target_audience}.
 Use a {tone} tone.
 
 Create a detailed content brief in JSON format with the following structure:
@@ -32,12 +37,14 @@ Make sure to:
 5. Ensure all headings are engaging and descriptive
 
 Important: Return ONLY valid JSON, no markdown formatting or additional text."""
-
+        )
+    
     @staticmethod
-    def get_introduction_prompt(
-        title: str, key_points: str, target_audience: str, tone: str
-    ) -> str:
-        return f"""Write an engaging introduction for an article titled "{title}".
+    def get_introduction_prompt():
+        """Prompt template for generating introductions."""
+        return PromptTemplate(
+            input_variables=["title", "key_points", "target_audience", "tone"],
+            template="""Write an engaging introduction for an article titled "{title}".
 
 Target audience: {target_audience}
 Tone: {tone}
@@ -48,16 +55,14 @@ Write 1 concise paragraph that draws readers in and sets up the article's main p
 Use proper line breaks (\\n\\n) between sentences or logical breaks to improve readability.
 
 Return only the introduction text, no additional formatting."""
-
+        )
+    
     @staticmethod
-    def get_section_prompt(
-        heading: str,
-        subpoints: str,
-        previous_content: str,
-        tone: str,
-        target_audience: str,
-    ) -> str:
-        return f"""Write a detailed section for the heading "{heading}".
+    def get_section_prompt():
+        """Prompt template for generating sections."""
+        return PromptTemplate(
+            input_variables=["heading", "subpoints", "previous_content", "tone", "target_audience"],
+            template="""Write a detailed section for the heading "{heading}".
 
 Subpoints to cover: {subpoints}
 Target audience: {target_audience}
@@ -71,12 +76,14 @@ Use examples and explanations appropriate for the target audience.
 Keep it concise but comprehensive.
 
 Return only the section content with the heading, no additional formatting."""
-
+        )
+    
     @staticmethod
-    def get_conclusion_prompt(
-        title: str, key_points: str, article_content: str, tone: str
-    ) -> str:
-        return f"""Write a compelling conclusion for an article titled "{title}".
+    def get_conclusion_prompt():
+        """Prompt template for generating conclusions."""
+        return PromptTemplate(
+            input_variables=["title", "key_points", "article_content", "tone"],
+            template="""Write a compelling conclusion for an article titled "{title}".
 
 Key points covered: {key_points}
 Tone: {tone}
@@ -92,3 +99,4 @@ Write 1 concise paragraph that provides closure and inspires action.
 Use proper line breaks (\\n\\n) between sentences or logical breaks to improve readability.
 
 Return only the conclusion text, no additional formatting."""
+        )

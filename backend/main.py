@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 from dotenv import load_dotenv
 
-from anthropic_service import AnthropicService
+from langchain_service import LangChainService
 from models import BriefRequest, BriefResponse, ArticleRequest, ArticleResponse
 
 load_dotenv()
@@ -18,7 +18,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-anthropic_service = AnthropicService()
+# Initialize LangChain service
+langchain_service = LangChainService()
 
 
 @app.get("/")
@@ -34,7 +35,7 @@ async def health_check():
 @app.post("/api/generate-brief", response_model=BriefResponse)
 async def generate_brief(request: BriefRequest):
     try:
-        brief = await anthropic_service.generate_brief(
+        brief = await langchain_service.generate_brief(
             keyword=request.keyword,
             content_type=request.content_type,
             tone=request.tone,
@@ -49,7 +50,7 @@ async def generate_brief(request: BriefRequest):
 async def generate_article(request: ArticleRequest):
     try:
         brief_data = request.dict()
-        article = await anthropic_service.generate_article_from_brief(brief_data)
+        article = await langchain_service.generate_article_from_brief(brief_data)
         return article
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
