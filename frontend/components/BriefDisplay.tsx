@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { BriefResponse, ArticleResponse, ArticleRequest } from '@/lib/types';
-import ArticleDisplay from './ArticleDisplay';
 
 interface BriefDisplayProps {
   brief: BriefResponse;
@@ -18,7 +17,6 @@ export default function BriefDisplay({
   const [expandedSections, setExpandedSections] = useState<Set<number>>(
     new Set()
   );
-  const [article, setArticle] = useState<ArticleResponse | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -93,7 +91,6 @@ export default function BriefDisplay({
       }
 
       const articleData: ArticleResponse = await response.json();
-      setArticle(articleData);
       if (onArticleGenerated) {
         onArticleGenerated(articleData);
       }
