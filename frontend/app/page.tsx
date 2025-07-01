@@ -82,19 +82,17 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex justify-center mb-12">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1">
-            <div className="flex space-x-1">
+        {/* Tab Navigation - Only show on initial form stage and not loading */}
+        {stage === 'form' && !loading && (
+          <div className="flex justify-center mb-12">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1">
+              <div className="flex space-x-1">
               <button
                 onClick={() => setActiveTab('generator')}
-                disabled={loading}
-                className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${
-                  loading 
-                    ? 'cursor-not-allowed opacity-50 text-gray-400'
-                    : activeTab === 'generator'
-                      ? 'bg-indigo-600 text-white shadow-sm cursor-pointer'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:shadow-sm cursor-pointer'
+                className={`px-6 py-3 rounded-md font-medium transition-all duration-200 cursor-pointer ${
+                  activeTab === 'generator'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:shadow-sm'
                 }`}
               >
                 <div className="flex items-center space-x-2">
@@ -107,13 +105,10 @@ export default function Home() {
               
               <button
                 onClick={() => setActiveTab('history')}
-                disabled={loading}
-                className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${
-                  loading 
-                    ? 'cursor-not-allowed opacity-50 text-gray-400'
-                    : activeTab === 'history'
-                      ? 'bg-indigo-600 text-white shadow-sm cursor-pointer'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:shadow-sm cursor-pointer'
+                className={`px-6 py-3 rounded-md font-medium transition-all duration-200 cursor-pointer ${
+                  activeTab === 'history'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:shadow-sm'
                 }`}
               >
                 <div className="flex items-center space-x-2">
@@ -126,6 +121,7 @@ export default function Home() {
             </div>
           </div>
         </div>
+        )}
 
         {/* Progress Steps - Only show for generator tab */}
         {activeTab === 'generator' && (
