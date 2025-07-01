@@ -82,8 +82,8 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Tab Navigation - Only show on initial form stage and not loading */}
-        {stage === 'form' && !loading && (
+        {/* Tab Navigation - Show on form stage (not loading) or after article is generated */}
+        {((stage === 'form' && !loading) || stage === 'article') && (
           <div className="flex justify-center mb-12">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1">
               <div className="flex space-x-1">
