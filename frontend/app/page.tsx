@@ -34,9 +34,26 @@ export default function Home() {
     setBrief(null);
   };
 
-  const handleArticleGenerated = (newArticle: ArticleResponse) => {
+  const handleArticleGenerated = async (newArticle: ArticleResponse) => {
     setArticle(newArticle);
     setStage('article');
+    
+    // Auto-save to Firebase
+    if (briefFormData) {
+      try {
+        const { saveArticle } = await import('@/lib/articleService');
+        await saveArticle({
+          title: newArticle.title,
+          content: newArticle.content,
+          keywords: briefFormData.keyword,
+          contentType: briefFormData.content_type,
+          tone: briefFormData.tone,
+          targetAudience: briefFormData.target_audience
+        });
+      } catch (error) {
+        console.error('Failed to save article:', error);
+      }
+    }
   };
 
   const goToStage = (newStage: Stage) => {
@@ -66,28 +83,47 @@ export default function Home() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-12">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1">
-            <button
-              onClick={() => setActiveTab('generator')}
-              className={`px-6 py-3 rounded-md font-medium transition-all ${
-                activeTab === 'generator'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Generator
-            </button>
-            <button
-              onClick={() => setActiveTab('history')}
-              className={`px-6 py-3 rounded-md font-medium transition-all ${
-                activeTab === 'history'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              History
-            </button>
+            <div className="flex space-x-1">
+              <button
+                onClick={() => setActiveTab('generator')}
+                disabled={loading}
+                className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${
+                  loading 
+                    ? 'cursor-not-allowed opacity-50 text-gray-400'
+                    : activeTab === 'generator'
+                      ? 'bg-indigo-600 text-white shadow-sm cursor-pointer'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:shadow-sm cursor-pointer'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  <span>Generate</span>
+                </div>
+              </button>
+              
+              <button
+                onClick={() => setActiveTab('history')}
+                disabled={loading}
+                className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${
+                  loading 
+                    ? 'cursor-not-allowed opacity-50 text-gray-400'
+                    : activeTab === 'history'
+                      ? 'bg-indigo-600 text-white shadow-sm cursor-pointer'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:shadow-sm cursor-pointer'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>History</span>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -265,15 +301,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <ArticleDisplay 
-                article={article} 
-                briefData={briefFormData ? {
-                  keywords: briefFormData.keyword,
-                  contentType: briefFormData.content_type,
-                  tone: briefFormData.tone,
-                  targetAudience: briefFormData.target_audience
-                } : undefined}
-              />
+              <ArticleDisplay article={article} />
             </div>
           )}
         </div>

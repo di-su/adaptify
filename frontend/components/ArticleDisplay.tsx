@@ -1,8 +1,7 @@
 'use client';
 
 import { ArticleResponse } from '@/lib/types';
-import { useState, useEffect } from 'react';
-import { saveArticle } from '@/lib/articleService';
+import { useState } from 'react';
 
 interface ArticleDisplayProps {
   article: ArticleResponse;
@@ -39,26 +38,6 @@ export default function ArticleDisplay({ article, briefData }: ArticleDisplayPro
     URL.revokeObjectURL(url);
   };
 
-  useEffect(() => {
-    const autoSave = async () => {
-      if (!briefData) return;
-      
-      try {
-        await saveArticle({
-          title: article.title,
-          content: article.content,
-          keywords: briefData.keywords,
-          contentType: briefData.contentType,
-          tone: briefData.tone,
-          targetAudience: briefData.targetAudience
-        });
-      } catch (error) {
-        console.error('Failed to save article:', error);
-      }
-    };
-
-    autoSave();
-  }, [article, briefData]);
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
@@ -75,13 +54,13 @@ export default function ArticleDisplay({ article, briefData }: ArticleDisplayPro
         <div className="flex gap-2">
           <button
             onClick={handleCopy}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
           >
             {copied ? 'Copied!' : 'Copy'}
           </button>
           <button
             onClick={handleDownload}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer"
           >
             Download
           </button>
