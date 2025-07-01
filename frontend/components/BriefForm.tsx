@@ -9,6 +9,7 @@ interface BriefFormProps {
   onError: (error: string) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
+  onFormDataChange?: (data: BriefRequest) => void;
 }
 
 export default function BriefForm({
@@ -16,6 +17,7 @@ export default function BriefForm({
   onError,
   loading,
   setLoading,
+  onFormDataChange,
 }: BriefFormProps) {
   const [formData, setFormData] = useState<BriefRequest>({
     keyword: '',
@@ -41,6 +43,7 @@ export default function BriefForm({
       );
 
       onBriefGenerated(response.data);
+      onFormDataChange?.(formData);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         onError(error.response?.data?.detail || 'Failed to generate brief');

@@ -3,21 +3,30 @@
 import { useState } from 'react';
 import BriefForm from '@/components/BriefForm';
 import BriefDisplay from '@/components/BriefDisplay';
+import ArticleDisplay from '@/components/ArticleDisplay';
+import History from '@/components/History';
 import { BriefResponse, ArticleResponse } from '@/lib/types';
 
+type Tab = 'generator' | 'history';
 type Stage = 'form' | 'brief' | 'article';
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState<Tab>('generator');
   const [stage, setStage] = useState<Stage>('form');
   const [brief, setBrief] = useState<BriefResponse | null>(null);
   const [article, setArticle] = useState<ArticleResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [briefFormData, setBriefFormData] = useState<any>(null);
 
   const handleBriefGenerated = (newBrief: BriefResponse) => {
     setBrief(newBrief);
     setError(null);
     setStage('brief');
+  };
+
+  const handleFormDataChange = (data: any) => {
+    setBriefFormData(data);
   };
 
   const handleError = (errorMessage: string) => {
@@ -46,7 +55,7 @@ export default function Home() {
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-16 max-w-4xl">
         {/* Hero Section */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
             AI-Powered Content Generation
           </h1>
@@ -56,8 +65,35 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Progress Steps */}
-        <div className="flex justify-center items-center space-x-4 mb-12">
+        {/* Tab Navigation */}
+        <div className="flex justify-center mb-8">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1">
+            <button
+              onClick={() => setActiveTab('generator')}
+              className={`px-6 py-3 rounded-md font-medium transition-all ${
+                activeTab === 'generator'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Generator
+            </button>
+            <button
+              onClick={() => setActiveTab('history')}
+              className={`px-6 py-3 rounded-md font-medium transition-all ${
+                activeTab === 'history'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              History
+            </button>
+          </div>
+        </div>
+
+        {/* Progress Steps - Only show for generator tab */}
+        {activeTab === 'generator' && (
+          <div className="flex justify-center items-center space-x-4 mb-12">
           <div className="flex items-center">
             <div
               className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
@@ -121,9 +157,10 @@ export default function Home() {
             </span>
           </div>
         </div>
+        )}
 
-        {/* Error Display */}
-        {error && (
+        {/* Error Display - Only show for generator tab */}
+        {activeTab === 'generator' && error && (
           <div className="bg-red-50 border border-red-100 text-red-600 px-6 py-4 rounded-xl mb-8 text-center font-medium">
             <span className="inline-flex items-center">
               <svg
@@ -142,8 +179,11 @@ export default function Home() {
           </div>
         )}
 
-        {/* Stage Content */}
-        <div className="card p-8 lg:p-10">
+        {/* Tab Content */}
+        {activeTab === 'history' ? (
+          <History />
+        ) : (
+          <div className="card p-8 lg:p-10">
           {stage === 'form' && (
             <div>
               <h2 className="text-3xl font-bold text-center mb-2 text-gray-900">
@@ -161,6 +201,7 @@ export default function Home() {
                 onError={handleError}
                 loading={loading}
                 setLoading={setLoading}
+                onFormDataChange={handleFormDataChange}
               />
             </div>
           )}
@@ -224,78 +265,19 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-xl border border-gray-100 overflow-hidden">
-                <div className="bg-white border-b border-gray-100 px-6 py-4">
-                  <h3 className="text-xl font-bold text-gray-900">
-                    {article.title}
-                  </h3>
-                </div>
-
-                <div className="p-6">
-                  <div className="prose prose-lg max-w-none">
-                    <pre className="whitespace-pre-wrap font-sans text-gray-700 leading-relaxed bg-transparent border-0 p-0">
-                      {article.content}
-                    </pre>
-                  </div>
-                </div>
-
-                <div className="bg-white border-t border-gray-100 px-6 py-4 flex gap-3">
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(article.content);
-                      // You could add a toast notification here
-                    }}
-                    className="btn-secondary text-sm flex items-center gap-2"
-                  >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                      />
-                    </svg>
-                    Copy to Clipboard
-                  </button>
-                  <button
-                    onClick={() => {
-                      const blob = new Blob([article.content], {
-                        type: 'text/plain',
-                      });
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement('a');
-                      a.href = url;
-                      a.download = `${article.title.replace(/[^a-zA-Z0-9]/g, '_')}.txt`;
-                      a.click();
-                      URL.revokeObjectURL(url);
-                    }}
-                    className="btn-primary text-sm flex items-center gap-2"
-                  >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                    Download Article
-                  </button>
-                </div>
-              </div>
+              <ArticleDisplay 
+                article={article} 
+                briefData={briefFormData ? {
+                  keywords: briefFormData.keyword,
+                  contentType: briefFormData.content_type,
+                  tone: briefFormData.tone,
+                  targetAudience: briefFormData.target_audience
+                } : undefined}
+              />
             </div>
           )}
         </div>
+        )}
       </div>
     </main>
   );
