@@ -15,31 +15,30 @@ class LangChainContentGenerator:
     
     def __init__(self):
         self.config = LangChainConfig()
-        self.prompts = LangChainPrompts()
         
         # Create chains for different content types
         self.brief_chain = LLMChain(
             llm=self.config.get_anthropic_llm(),
-            prompt=self.prompts.get_brief_prompt(),
+            prompt=LangChainPrompts.get_brief_prompt(),
             output_key="brief"
         )
         
         self.intro_chain = LLMChain(
             llm=self.config.get_anthropic_llm(),
-            prompt=self.prompts.get_introduction_prompt(),
+            prompt=LangChainPrompts.get_introduction_prompt(),
             output_key="introduction"
         )
         
         self.section_chain = LLMChain(
             llm=self.config.get_anthropic_llm(),
-            prompt=self.prompts.get_section_prompt(),
+            prompt=LangChainPrompts.get_section_prompt(),
             output_key="section"
         )
         
         # Use separate LLM for conclusions (currently also Claude, but shows multi-LLM pattern)
         self.conclusion_chain = LLMChain(
             llm=self.config.get_conclusion_llm(),
-            prompt=self.prompts.get_conclusion_prompt(),
+            prompt=LangChainPrompts.get_conclusion_prompt(),
             output_key="conclusion"
         )
     

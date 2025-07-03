@@ -9,7 +9,6 @@ class LangChainService:
     """Service using LangChain for multi-LLM content generation."""
     
     def __init__(self):
-        self.validator = ResponseValidator()
         self.generator = LangChainContentGenerator()
     
     async def generate_brief(
@@ -21,10 +20,10 @@ class LangChainService:
                 keyword, content_type, tone, target_audience
             )
             
-            content = self.validator.clean_json_response(response)
+            content = ResponseValidator.clean_json_response(response)
             brief_data = json.loads(content)
             
-            return self.validator.validate_and_format_brief(brief_data)
+            return ResponseValidator.validate_and_format_brief(brief_data)
             
         except json.JSONDecodeError as e:
             raise Exception(f"Failed to parse JSON response: {str(e)}")
