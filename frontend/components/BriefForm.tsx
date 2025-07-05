@@ -249,6 +249,12 @@ export default function BriefForm({
               id="url"
               value={urlInput}
               onChange={e => setUrlInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !loading && !isAnalyzing && urlInput.trim()) {
+                  e.preventDefault();
+                  handleUrlAnalysis();
+                }
+              }}
               className="input-modern"
               placeholder="https://example.com/article"
               disabled={loading || isAnalyzing}
