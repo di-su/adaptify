@@ -2,6 +2,7 @@ from typing import Dict, Any
 from langchain.chains import LLMChain
 from langchain_config import LangChainConfig
 from langchain_prompts import LangChainPrompts
+from rag_service import rag_service
 from constants import (
     DEFAULT_TONE,
     DEFAULT_TARGET_AUDIENCE,
@@ -70,8 +71,19 @@ class LangChainContentGenerator:
         key_points_str = ", ".join(brief_data.get("key_points", []))
         recommendations = self._get_recommendations(brief_data)
         
-        # Truncate scraped content if too long
-        reference_content = scraped_content[:2000] if scraped_content else "No reference content available."
+        # Use RAG to retrieve relevant content
+        query = f"{brief_data.get('title', '')} introduction {key_points_str}"
+        relevant_docs = rag_service.retrieve_relevant_content(query, k=3)
+        
+        # Combine retrieved chunks as reference content
+        if relevant_docs:
+            reference_content = "\n\n".join([
+                f"[Source: {doc['source']}]\n{doc['content']}" 
+                for doc in relevant_docs
+            ])[:2000]
+        else:
+            # Fall back to scraped content if no RAG results
+            reference_content = scraped_content[:2000] if scraped_content else "No reference content available."
         
         try:
             result = await self.intro_chain.arun(
@@ -96,8 +108,19 @@ class LangChainContentGenerator:
         if len(previous_content) > SECTION_CONTEXT_LIMIT:
             previous_content = previous_content[-SECTION_CONTEXT_LIMIT:]
         
-        # Truncate scraped content if too long
-        reference_content = scraped_content[:2000] if scraped_content else "No reference content available."
+        # Use RAG to retrieve relevant content for this section
+        query = f"{section.get('heading', '')} {subpoints_str} {recommendations['target_audience']}"
+        relevant_docs = rag_service.retrieve_relevant_content(query, k=3)
+        
+        # Combine retrieved chunks as reference content
+        if relevant_docs:
+            reference_content = "\n\n".join([
+                f"[Source: {doc['source']}]\n{doc['content']}" 
+                for doc in relevant_docs
+            ])[:2000]
+        else:
+            # Fall back to scraped content if no RAG results
+            reference_content = scraped_content[:2000] if scraped_content else "No reference content available."
         
         try:
             result = await self.section_chain.arun(
@@ -123,8 +146,19 @@ class LangChainContentGenerator:
         if len(article_content) > CONCLUSION_CONTEXT_LIMIT:
             article_content = article_content[-CONCLUSION_CONTEXT_LIMIT:]
         
-        # Truncate scraped content if too long
-        reference_content = scraped_content[:2000] if scraped_content else "No reference content available."
+        # Use RAG to retrieve relevant content for conclusion
+        query = f"{brief_data.get('title', '')} conclusion summary {key_points_str}"
+        relevant_docs = rag_service.retrieve_relevant_content(query, k=3)
+        
+        # Combine retrieved chunks as reference content
+        if relevant_docs:
+            reference_content = "\n\n".join([
+                f"[Source: {doc['source']}]\n{doc['content']}" 
+                for doc in relevant_docs
+            ])[:2000]
+        else:
+            # Fall back to scraped content if no RAG results
+            reference_content = scraped_content[:2000] if scraped_content else "No reference content available."
         
         try:
             result = await self.conclusion_chain.arun(

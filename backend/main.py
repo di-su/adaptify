@@ -7,6 +7,7 @@ from langchain_service import LangChainService
 from models import BriefRequest, BriefResponse, ArticleRequest, ArticleResponse, UrlAnalysisRequest, UrlAnalysisResponse
 from url_scraper import url_scraper
 from content_analyzer import content_analyzer
+from rag_service import rag_service
 
 load_dotenv()
 
@@ -93,6 +94,9 @@ async def analyze_url(request: UrlAnalysisRequest):
     try:
         # Scrape URL content
         content = url_scraper.scrape_url(request.url)
+        
+        # Process scraped content into RAG system
+        rag_service.process_scraped_content(request.url, content)
         
         # Analyze content to extract keyword and audience
         analysis_result = await content_analyzer.analyze_content(content)
