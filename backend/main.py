@@ -4,7 +4,9 @@ import os
 from dotenv import load_dotenv
 
 from langchain_service import LangChainService
-from models import BriefRequest, BriefResponse, ArticleRequest, ArticleResponse
+from models import BriefRequest, BriefResponse, ArticleRequest, ArticleResponse, UrlAnalysisRequest, UrlAnalysisResponse
+from url_scraper import url_scraper
+from content_analyzer import content_analyzer
 
 load_dotenv()
 
@@ -54,6 +56,50 @@ async def generate_article(request: ArticleRequest):
         return article
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/analyze-url", response_model=UrlAnalysisResponse)
+async def analyze_url(request: UrlAnalysisRequest):
+    print(f"\n{'='*60}")
+    print(f"🚀 NEW URL ANALYSIS REQUEST")
+    print(f"📍 URL: {request.url}")
+    print(f"{'='*60}")
+    
+    try:
+        # Scrape URL content
+        print(f"\n[Step 1/2] Scraping URL content...")
+        content = url_scraper.scrape_url(request.url)
+        
+        # Analyze content to extract keyword and audience
+        print(f"\n[Step 2/2] Analyzing content with AI...")
+        analysis_result = await content_analyzer.analyze_content(content)
+        
+        # Prepare response
+        response = UrlAnalysisResponse(
+            keyword=analysis_result["keyword"],
+            target_audience=analysis_result["target_audience"],
+            content_type="blog",
+            tone="casual"
+        )
+        
+        print(f"\n🎉 URL ANALYSIS COMPLETE!")
+        print(f"📋 Final Results:")
+        print(f"   - Keyword: {response.keyword}")
+        print(f"   - Target Audience: {response.target_audience}")
+        print(f"   - Content Type: {response.content_type}")
+        print(f"   - Tone: {response.tone}")
+        print(f"{'='*60}\n")
+        
+        # Return response with defaults for content_type and tone
+        return response
+    except ValueError as e:
+        print(f"\n❌ VALIDATION ERROR: {str(e)}")
+        print(f"{'='*60}\n")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        print(f"\n❌ ANALYSIS FAILED: {str(e)}")
+        print(f"{'='*60}\n")
+        raise HTTPException(status_code=500, detail=f"Failed to analyze URL: {str(e)}")
 
 
 if __name__ == "__main__":

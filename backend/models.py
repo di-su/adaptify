@@ -41,3 +41,14 @@ class ArticleResponse(BaseModel):
     content: str
     word_count: int
     sections: int
+
+
+class UrlAnalysisRequest(BaseModel):
+    url: str
+
+
+class UrlAnalysisResponse(BaseModel):
+    keyword: str
+    target_audience: str
+    content_type: str = "blog"
+    tone: str = "casual"

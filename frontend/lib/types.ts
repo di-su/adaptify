@@ -37,3 +37,14 @@ export interface ArticleResponse {
   word_count: number;
   sections: number;
 }
+
+export interface UrlAnalysisRequest {
+  url: string;
+}
+
+export interface UrlAnalysisResponse {
+  keyword: string;
+  target_audience: string;
+  content_type: 'blog' | 'article' | 'guide';
+  tone: 'professional' | 'casual' | 'technical';
+}
