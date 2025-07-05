@@ -12,7 +12,7 @@ class LangChainService:
         self.generator = LangChainContentGenerator()
     
     async def generate_brief(
-        self, keyword: str, content_type: str, tone: str, target_audience: str
+        self, keyword: str, content_type: str, tone: str, target_audience: str, scraped_content: str = ""
     ) -> Dict[str, Any]:
         """Generate content brief using LangChain."""
         try:
@@ -23,7 +23,12 @@ class LangChainService:
             content = ResponseValidator.clean_json_response(response)
             brief_data = json.loads(content)
             
-            return ResponseValidator.validate_and_format_brief(brief_data)
+            validated_brief = ResponseValidator.validate_and_format_brief(brief_data)
+            
+            # Include scraped content in the response
+            validated_brief["scraped_content"] = scraped_content
+            
+            return validated_brief
             
         except json.JSONDecodeError as e:
             raise Exception(f"Failed to parse JSON response: {str(e)}")
@@ -35,22 +40,26 @@ class LangChainService:
     ) -> Dict[str, Any]:
         """Generate article using LangChain with Claude for content and ChatGPT for conclusion."""
         try:
-            # Generate introduction using Claude
-            intro_content = await self.generator.generate_introduction(brief_data)
+            # Extract scraped content if available
+            scraped_content = brief_data.get("scraped_content", "")
             
-            # Generate body sections using Claude
+            # Generate introduction using Claude with scraped content as context
+            intro_content = await self.generator.generate_introduction(brief_data, scraped_content)
+            
+            # Generate body sections using Claude with scraped content as context
             sections_content = []
             for section in brief_data.get("outline", []):
                 section_content = await self.generator.generate_section(
                     section,
                     brief_data,
                     intro_content + "\n\n" + "\n\n".join(sections_content),
+                    scraped_content
                 )
                 sections_content.append(section_content)
             
-            # Generate conclusion using LangChain (demonstrates multi-LLM pattern)
+            # Generate conclusion using LangChain with scraped content as context
             conclusion_content = await self.generator.generate_conclusion(
-                brief_data, intro_content + "\n\n" + "\n\n".join(sections_content)
+                brief_data, intro_content + "\n\n" + "\n\n".join(sections_content), scraped_content
             )
             
             # Assemble complete article
@@ -69,7 +78,7 @@ class LangChainService:
                 "llm_info": {
                     "brief_and_content": "Claude 3.5 Sonnet (via LangChain)",
                     "conclusion": "Claude 3.5 Sonnet (via LangChain)",
-                    "framework": "LangChain"
+                    "framework": "LangChain with RAG"
                 }
             }
             

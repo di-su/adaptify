@@ -25,33 +25,22 @@ class UrlScraper:
     
     def scrape_url(self, url: str) -> Optional[str]:
         """Scrape content from URL and extract main text content."""
-        print(f"\n🌐 URL Scraper: Starting to analyze URL: {url}")
-        
         if not self.validate_url(url):
             raise ValueError(f"Invalid URL: {url}")
         
         try:
             # Make request with timeout
-            print(f"📡 Fetching content from {url}...")
             response = requests.get(url, headers=self.headers, timeout=self.timeout)
             response.raise_for_status()
-            print(f"✅ Successfully fetched content (Status: {response.status_code})")
             
             # Check content length
             content_length = len(response.content)
-            print(f"📏 Content size: {content_length:,} bytes")
             if content_length > self.max_content_length:
                 logger.warning(f"Content too large ({content_length} bytes), truncating")
                 response._content = response.content[:self.max_content_length]
             
             # Parse HTML
-            print(f"🔍 Parsing HTML content...")
             soup = BeautifulSoup(response.content, 'html.parser')
-            
-            # Get page title if available
-            title = soup.find('title')
-            if title:
-                print(f"📄 Page title: {title.text.strip()}")
             
             # Remove script and style elements
             for script in soup(["script", "style"]):
@@ -66,16 +55,8 @@ class UrlScraper:
             text = ' '.join(chunk for chunk in chunks if chunk)
             
             # Limit final text length
-            original_length = len(text)
             if len(text) > 10000:
                 text = text[:10000] + "..."
-                print(f"✂️  Text truncated from {original_length:,} to 10,000 characters")
-            else:
-                print(f"📝 Extracted {original_length:,} characters of text")
-            
-            # Show preview of extracted content
-            preview = text[:200] + "..." if len(text) > 200 else text
-            print(f"👁️  Content preview: {preview}")
             
             return text
             
@@ -104,16 +85,13 @@ class UrlScraper:
         for selector in main_content_selectors:
             content = soup.select_one(selector)
             if content:
-                print(f"🎯 Found main content using selector: {selector}")
                 return content.get_text()
         
         # Fallback to body or entire document
         body = soup.find('body')
         if body:
-            print(f"⚠️  No specific content area found, using entire body")
             return body.get_text()
         
-        print(f"⚠️  No body found, extracting all text")
         return soup.get_text()
 
 # Singleton instance

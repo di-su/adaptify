@@ -65,24 +65,28 @@ class LangChainContentGenerator:
         except Exception as e:
             raise Exception(f"Brief generation failed: {str(e)}")
     
-    async def generate_introduction(self, brief_data: Dict[str, Any]) -> str:
+    async def generate_introduction(self, brief_data: Dict[str, Any], scraped_content: str = "") -> str:
         """Generate introduction using Claude via LangChain."""
         key_points_str = ", ".join(brief_data.get("key_points", []))
         recommendations = self._get_recommendations(brief_data)
+        
+        # Truncate scraped content if too long
+        reference_content = scraped_content[:2000] if scraped_content else "No reference content available."
         
         try:
             result = await self.intro_chain.arun(
                 title=brief_data.get("title", ""),
                 key_points=key_points_str,
                 target_audience=recommendations["target_audience"],
-                tone=recommendations["tone"]
+                tone=recommendations["tone"],
+                reference_content=reference_content
             )
             return result.strip()
         except Exception as e:
             raise Exception(f"Introduction generation failed: {str(e)}")
     
     async def generate_section(
-        self, section: Dict[str, Any], brief_data: Dict[str, Any], previous_content: str
+        self, section: Dict[str, Any], brief_data: Dict[str, Any], previous_content: str, scraped_content: str = ""
     ) -> str:
         """Generate section using Claude via LangChain."""
         subpoints_str = ", ".join(section.get("subpoints", []))
@@ -92,20 +96,24 @@ class LangChainContentGenerator:
         if len(previous_content) > SECTION_CONTEXT_LIMIT:
             previous_content = previous_content[-SECTION_CONTEXT_LIMIT:]
         
+        # Truncate scraped content if too long
+        reference_content = scraped_content[:2000] if scraped_content else "No reference content available."
+        
         try:
             result = await self.section_chain.arun(
                 heading=section.get("heading", ""),
                 subpoints=subpoints_str,
                 previous_content=previous_content,
                 tone=recommendations["tone"],
-                target_audience=recommendations["target_audience"]
+                target_audience=recommendations["target_audience"],
+                reference_content=reference_content
             )
             return result.strip()
         except Exception as e:
             raise Exception(f"Section generation failed: {str(e)}")
     
     async def generate_conclusion(
-        self, brief_data: Dict[str, Any], article_content: str
+        self, brief_data: Dict[str, Any], article_content: str, scraped_content: str = ""
     ) -> str:
         """Generate conclusion using LangChain (currently Claude, but pattern supports multiple LLMs)."""
         key_points_str = ", ".join(brief_data.get("key_points", []))
@@ -115,12 +123,16 @@ class LangChainContentGenerator:
         if len(article_content) > CONCLUSION_CONTEXT_LIMIT:
             article_content = article_content[-CONCLUSION_CONTEXT_LIMIT:]
         
+        # Truncate scraped content if too long
+        reference_content = scraped_content[:2000] if scraped_content else "No reference content available."
+        
         try:
             result = await self.conclusion_chain.arun(
                 title=brief_data.get("title", ""),
                 key_points=key_points_str,
                 article_content=article_content,
-                tone=recommendations["tone"]
+                tone=recommendations["tone"],
+                reference_content=reference_content
             )
             return result.strip()
         except Exception as e:

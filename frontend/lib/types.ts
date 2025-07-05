@@ -3,6 +3,7 @@ export interface BriefRequest {
   content_type: 'blog' | 'article' | 'guide';
   tone: 'professional' | 'casual' | 'technical';
   target_audience: string;
+  scraped_content?: string;
 }
 
 export interface OutlineItem {
@@ -21,6 +22,7 @@ export interface BriefResponse {
   outline: OutlineItem[];
   key_points: string[];
   recommendations: Recommendations;
+  scraped_content?: string;
 }
 
 export interface ArticleRequest {
@@ -29,6 +31,7 @@ export interface ArticleRequest {
   outline: OutlineItem[];
   key_points: string[];
   recommendations: Recommendations;
+  scraped_content?: string;
 }
 
 export interface ArticleResponse {
@@ -47,4 +50,5 @@ export interface UrlAnalysisResponse {
   target_audience: string;
   content_type: 'blog' | 'article' | 'guide';
   tone: 'professional' | 'casual' | 'technical';
+  scraped_content?: string;
 }

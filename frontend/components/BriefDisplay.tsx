@@ -51,7 +51,9 @@ export default function BriefDisplay({
   };
 
   const handleGenerateArticle = async () => {
-    const articleData = await generateArticle(brief);
+    const contentToUse = brief.scraped_content || '';
+    
+    const articleData = await generateArticle(brief, contentToUse);
     if (articleData && onArticleGenerated) {
       onArticleGenerated(articleData);
     } else if (error && onError) {

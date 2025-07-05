@@ -55,4 +55,10 @@ class ResponseValidator:
             content = content[7:]
         if content.endswith("```"):
             content = content[:-3]
+        
+        # Remove invalid control characters that can break JSON parsing
+        import re
+        # Remove control characters except newlines, tabs, and carriage returns
+        content = re.sub(r'[\x00-\x08\x0b-\x0c\x0e-\x1f\x7f]', '', content)
+        
         return content.strip()

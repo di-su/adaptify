@@ -12,13 +12,42 @@ load_dotenv()
 
 app = FastAPI(title="Content Brief Generator API")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Configure CORS - allow all origins by default
+allow_all_cors = os.getenv("ALLOW_ALL_CORS", "true").lower() == "true"
+
+if allow_all_cors:
+    # Allow all origins (less secure but flexible)
+    cors_config = {
+        "allow_origins": ["*"],
+        "allow_credentials": False,
+        "allow_methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"],
+    }
+else:
+    # Specific origins for security
+    cors_origins = [
+        "http://localhost:3000",  # Local development
+        "http://127.0.0.1:3000",  # Local development alternative
+    ]
+    
+    # Add production origins from environment variables
+    production_origin = os.getenv("FRONTEND_URL")
+    if production_origin:
+        cors_origins.append(production_origin)
+    
+    # Support for multiple production origins
+    additional_origins = os.getenv("CORS_ORIGINS")
+    if additional_origins:
+        cors_origins.extend(additional_origins.split(","))
+    
+    cors_config = {
+        "allow_origins": cors_origins,
+        "allow_credentials": False,
+        "allow_methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+    }
+
+app.add_middleware(CORSMiddleware, **cors_config)
 
 # Initialize LangChain service
 langchain_service = LangChainService()
@@ -42,6 +71,7 @@ async def generate_brief(request: BriefRequest):
             content_type=request.content_type,
             tone=request.tone,
             target_audience=request.target_audience,
+            scraped_content=request.scraped_content,
         )
         return brief
     except Exception as e:
@@ -51,7 +81,7 @@ async def generate_brief(request: BriefRequest):
 @app.post("/api/generate-article", response_model=ArticleResponse)
 async def generate_article(request: ArticleRequest):
     try:
-        brief_data = request.model_dump()
+        brief_data = request.dict()
         article = await langchain_service.generate_article_from_brief(brief_data)
         return article
     except Exception as e:
@@ -60,18 +90,11 @@ async def generate_article(request: ArticleRequest):
 
 @app.post("/api/analyze-url", response_model=UrlAnalysisResponse)
 async def analyze_url(request: UrlAnalysisRequest):
-    print(f"\n{'='*60}")
-    print(f"🚀 NEW URL ANALYSIS REQUEST")
-    print(f"📍 URL: {request.url}")
-    print(f"{'='*60}")
-    
     try:
         # Scrape URL content
-        print(f"\n[Step 1/2] Scraping URL content...")
         content = url_scraper.scrape_url(request.url)
         
         # Analyze content to extract keyword and audience
-        print(f"\n[Step 2/2] Analyzing content with AI...")
         analysis_result = await content_analyzer.analyze_content(content)
         
         # Prepare response
@@ -79,26 +102,14 @@ async def analyze_url(request: UrlAnalysisRequest):
             keyword=analysis_result["keyword"],
             target_audience=analysis_result["target_audience"],
             content_type="blog",
-            tone="casual"
+            tone="casual",
+            scraped_content=content
         )
         
-        print(f"\n🎉 URL ANALYSIS COMPLETE!")
-        print(f"📋 Final Results:")
-        print(f"   - Keyword: {response.keyword}")
-        print(f"   - Target Audience: {response.target_audience}")
-        print(f"   - Content Type: {response.content_type}")
-        print(f"   - Tone: {response.tone}")
-        print(f"{'='*60}\n")
-        
-        # Return response with defaults for content_type and tone
         return response
     except ValueError as e:
-        print(f"\n❌ VALIDATION ERROR: {str(e)}")
-        print(f"{'='*60}\n")
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        print(f"\n❌ ANALYSIS FAILED: {str(e)}")
-        print(f"{'='*60}\n")
         raise HTTPException(status_code=500, detail=f"Failed to analyze URL: {str(e)}")
 
 

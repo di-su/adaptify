@@ -5,7 +5,7 @@ export const useArticleGeneration = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const generateArticle = async (brief: BriefResponse): Promise<ArticleResponse | null> => {
+  const generateArticle = async (brief: BriefResponse, scrapedContent?: string): Promise<ArticleResponse | null> => {
     setIsGenerating(true);
     setError(null);
 
@@ -16,6 +16,7 @@ export const useArticleGeneration = () => {
         outline: brief.outline,
         key_points: brief.key_points,
         recommendations: brief.recommendations,
+        scraped_content: scrapedContent,
       };
 
       const response = await fetch(

@@ -18,6 +18,7 @@ class BriefRequest(BaseModel):
     content_type: str = "blog"
     tone: str = "professional"
     target_audience: str = "general audience"
+    scraped_content: str = ""
 
 
 class BriefResponse(BaseModel):
@@ -26,6 +27,7 @@ class BriefResponse(BaseModel):
     outline: List[OutlineItem]
     key_points: List[str]
     recommendations: Recommendations
+    scraped_content: str = ""
 
 
 class ArticleRequest(BaseModel):
@@ -34,6 +36,7 @@ class ArticleRequest(BaseModel):
     outline: List[OutlineItem]
     key_points: List[str]
     recommendations: Recommendations
+    scraped_content: str = ""
 
 
 class ArticleResponse(BaseModel):
@@ -52,3 +55,4 @@ class UrlAnalysisResponse(BaseModel):
     target_audience: str
     content_type: str = "blog"
     tone: str = "casual"
+    scraped_content: str = ""

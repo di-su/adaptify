@@ -84,6 +84,7 @@ export const useBriefForm = () => {
         target_audience: response.data.target_audience,
         content_type: response.data.content_type,
         tone: response.data.tone,
+        scraped_content: response.data.scraped_content || '',
       };
 
       // Update the form state

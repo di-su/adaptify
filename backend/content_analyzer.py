@@ -18,10 +18,7 @@ class ContentAnalyzer:
     def __init__(self):
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
-            print("⚠️  WARNING: ANTHROPIC_API_KEY not found in environment variables!")
-            print("  Make sure you have a .env file with ANTHROPIC_API_KEY=your_key_here")
-        else:
-            print(f"✅ API key loaded (length: {len(api_key)} chars)")
+            logger.warning("ANTHROPIC_API_KEY not found in environment variables")
             
         self.llm = ChatAnthropic(
             model="claude-3-haiku-20240307",
@@ -50,22 +47,15 @@ Be specific and concise. The keyword should be the core topic of the content."""
     
     async def analyze_content(self, content: str) -> Dict[str, str]:
         """Analyze content and extract keyword and target audience."""
-        print(f"\n🤖 Content Analyzer: Starting content analysis...")
-        print(f"📊 Content length: {len(content):,} characters")
-        
         try:
             # Truncate content if too long
             if len(content) > 5000:
-                print(f"✂️  Truncating content from {len(content):,} to 5,000 characters for analysis")
                 content = content[:5000] + "..."
             
             prompt = self.analysis_prompt.format(content=content)
             
             # Get response from LLM
-            print(f"🧠 Sending content to Claude for analysis...")
             response = await self.llm.ainvoke([HumanMessage(content=prompt)])
-            
-            print(f"📝 Raw LLM response: {response.content}")
             
             # Parse JSON response
             result = self._parse_json_response(response.content)
@@ -78,16 +68,10 @@ Be specific and concise. The keyword should be the core topic of the content."""
             result["keyword"] = result["keyword"].strip()[:50]  # Limit keyword length
             result["target_audience"] = result["target_audience"].strip()[:200]  # Limit audience description
             
-            print(f"✅ Analysis complete!")
-            print(f"🎯 Extracted keyword: '{result['keyword']}'")
-            print(f"👥 Extracted target audience: '{result['target_audience']}'")
-            
             return result
             
         except Exception as e:
             logger.error(f"Error analyzing content: {str(e)}")
-            print(f"❌ Error during analysis: {str(e)}")
-            print(f"⚠️  Returning default values")
             # Return defaults on error
             return {
                 "keyword": "general content",
