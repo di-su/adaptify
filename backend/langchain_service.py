@@ -40,11 +40,8 @@ class LangChainService:
     ) -> Dict[str, Any]:
         """Generate article using LangChain with Claude for content and ChatGPT for conclusion."""
         try:
-            # Extract scraped content if available
-            scraped_content = brief_data.get("scraped_content", "")
-            
-            # Generate introduction using Claude with scraped content as context
-            intro_content = await self.generator.generate_introduction(brief_data, scraped_content)
+            # Generate introduction using Claude with RAG context
+            intro_content = await self.generator.generate_introduction(brief_data)
             
             # Generate body sections using Claude with scraped content as context
             sections_content = []
@@ -52,14 +49,13 @@ class LangChainService:
                 section_content = await self.generator.generate_section(
                     section,
                     brief_data,
-                    intro_content + "\n\n" + "\n\n".join(sections_content),
-                    scraped_content
+                    intro_content + "\n\n" + "\n\n".join(sections_content)
                 )
                 sections_content.append(section_content)
             
-            # Generate conclusion using LangChain with scraped content as context
+            # Generate conclusion using LangChain with RAG context
             conclusion_content = await self.generator.generate_conclusion(
-                brief_data, intro_content + "\n\n" + "\n\n".join(sections_content), scraped_content
+                brief_data, intro_content + "\n\n" + "\n\n".join(sections_content)
             )
             
             # Assemble complete article
