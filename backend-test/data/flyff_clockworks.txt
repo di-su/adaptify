@@ -1,0 +1,171 @@
+# Clockworks - FlyFF Boss Guide
+
+## Overview
+Clockworks is a level 80 super giant boss with approximately 62.6 million HP. This formidable enemy is the first Super Giant in the game and represents a significant challenge for most players.
+
+## Appearance and Lore
+Clockworks is a large, majestic, mechanical, spider-like machine with a restless soul. In the historical passages of Madrigal, legends tell of how he once wreaked havoc across the world as he stomped, slashed, and roared. 
+
+**Physical Description:**
+- Reddish copper color
+- Beautiful sun marking or tattoo across his visage (face)
+- Several legs, similar to a spider
+- Made of metal, not an animal
+- Towers over the land like an ancient Dinosaur
+- Lord Alpha Clockworks variant is burnt orange, red-blood colored
+
+**History:**
+Clockworks had been defeated and caged in Darkon. There was a time when Clockworks escaped and rampaged around the cities of Madrigal for revenge, but he has been caught and caged once again.
+
+## Location and Access
+- **Location:** Clockworks Cage in Darkon 2, just south of Darken City
+- **Access Requirements:**
+  - Must be in same Guild and party
+  - Guild leader must complete the level 70 quest from Darken Mayor (Great Clockwork War)
+  - Entry through NPC Eshylop
+  - Only available on Channel 1 of any server
+
+## Combat Statistics
+**Basic Stats:**
+- Level: 80
+- HP: 62,582,890
+- Defense: 115
+- Magic Defense: 140
+- Experience: 249,864,550
+- Attack: 2,800~3,000
+
+**Combat Characteristics:**
+- Does not run when dying
+- Has ranged attacks
+- Uses AOE (Area of Effect) attacks
+- Does not spawn lesser monsters
+
+## Attack Patterns
+
+### 1. Stomp
+- **Range:** Close-range
+- **Type:** Area of Effect (AoE)
+- **Description:** Most common attack if you stay under Clockworks
+- **Special:** Can knock back players
+
+### 2. Cannon
+- **Range:** Long-range
+- **Type:** AoE
+- **Description:** Fires when you run away from Clockworks, sometimes when running to it
+- **Special:** Once targeted, you will get hit regardless of distance before attack connects
+
+### 3. Laser
+- **Range:** Medium-range
+- **Type:** Small AoE with continuous damage
+- **Description:** Deals massive damage in chunks (can take 18k HP in 3-4 hits)
+- **Special:** Fires from Clockworks' head to reasonable range then moves inward. Players under Clockworks are safe.
+
+### 4. Sword
+- **Range:** Close-range
+- **Type:** AoE
+- **Description:** Standard damage sword attack
+
+## Combat Mechanics
+
+### Damage Output
+- **Level 80 players:** 2k+ normal damage (3k+ critical)
+- **Rage mode:** 4k+ normal damage (6-7k critical)
+- **Under-leveled players:** Up to 10k+ critical damage during rage
+
+### Combat Notes
+- All Clockworks attacks can be blocked
+- Clockworks attacks cannot miss
+- **Effective Skills:** Sneaker (stops movement), Holycross, Swordcross, Baraqijal Esna, Windfield, Electric Shock, Pain Dealer
+- **Ineffective Skills:** Stonehand, Ice Arrow, Ice Missile (no longer work)
+- **Limited Effectiveness:** Satanology, Rooting (low timers), Windfield (reduces movement speed)
+- **Other:** Pulling works and can be helpful during invasions
+
+## Dungeon Rules
+- **Time Limit:** 1 hour to defeat Clockworks
+- **Player Capacity:** Determined by guild size (Level 1 guild = 30 players)
+- **Attempts:** One attempt per guild (must create new guild for subsequent attempts)
+- **Failed Attempts:** Don't require guild recreation
+- **Instance Type:** Only party/guild members present
+
+## Strategy and Tactics
+
+### Team Compositions
+- **High-level teams:** Very small teams can defeat Clockworks with no problems
+- **Angel weapons + Blades:** Blade and YJ/BJ combo with RM support (BJ combo may need Upcut Stones)
+- **Bow Jesters:** Well equipped bow Jesters can defeat CW with Knight for Pain Dealer + RM buffs (level 95+)
+- **Solo Blade:** Level 95+ with reasonable equipment and RM support
+- **Yoyo Jester:** Most efficient early option - well equipped YJ with RM can start at level 90 or earlier
+- **Advanced Blade:** Level 110 blade with correct equipment can solo without RM
+
+### Strategy Tips
+- Use Lucky Drop party skill before Clockworks dies
+- Utilize Link Attack for faster kills
+- Party leader should be highest damage dealer for optimal Link Attack
+- Support classes should join party for Link Attack bonus
+- Recommended for 3-4 player teams for profit optimization
+
+## Rewards and Drops
+
+**Important:** All Clockworks equipment is Soul Linked (cannot be traded, sold, or warehoused after equipping) and class-restricted.
+
+### Weapons (Level 60)
+- **Dretra Sword:** Attack Speed +5%, Hit +20%
+- **Taytra Axe:** DEF +20, Hit +20%
+- **Yakadain Knuckle:** STR +5, Hit +20%
+- **Yakshadain Stick:** Max MP +200, INT +4
+- **Clrael Wand:** Max MP +200, INT +4
+- **Shamerel Staff:** Max MP +200, INT +4
+
+### Armor Sets (Level 50)
+
+#### 1. Shamutra/Shaentra Set
+- **Male bonuses:** DEF and HP increases
+- **Female bonuses:** Attack Speed and Hit Rate increases
+- **Set bonus:** Electric/Fire/Water resistance
+
+#### 2. Forgiel/Seidel Set
+- **Male bonuses:** DEF increases
+- **Female bonuses:** INT increases
+- **Set bonus:** Electric/Fire/Water resistance
+
+#### 3. Rashadain/Yuandain Set
+- **Male bonuses:** MP and HP increases
+- **Female bonuses:** Attack and DEF increases
+- **Set bonus:** Electric/Fire/Water resistance
+
+#### 4. Rorend/Rorient Set
+- **Both genders:** Critical Chance +7%, Attack Speed +5%
+- **Set bonus:** Electric/Fire/Water resistance
+
+### Defense Values by Piece
+- **Helmet:** 210-215
+- **Boots:** 270-275
+- **Gauntlet:** 335-340
+- **Suit:** 515-520
+
+### Other Drops
+
+**Replenishers:**
+- Fruit Parfait, Meat Salad, Fruit Sherbet, VitalDrink 500, Fifth Refresher
+
+**Shields:**
+- Rukenshia Shield, Catepo Shield, Toeffin Shield
+
+**Jewelry:**
+- Vigor Ring, Gore Necklace, Plug Earring, Stam Ring
+- Intelli Ring, Mental Necklace, Demol Earring, Peision Necklace
+- Arek Ring, Dexion, Intiret, Pep
+- Socecle, Enduky, Speedo, Mighteer
+- Penzeru, Strente
+
+**Upgrade Materials:**
+- Elemental Cards
+- Suit Socket Cards (2%-4%)
+- Weapon Socket Cards (D-B)
+- Sunstone, Moonstone, Lightning Stone
+
+**Miscellaneous:**
+- Flyff Pieces
+
+## Trivia
+In honor of Clockworks, a new server was erected.
