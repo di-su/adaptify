@@ -6,7 +6,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 from langchain_anthropic import ChatAnthropic
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains import RetrievalQA
 from langchain.docstore.document import Document
 
@@ -21,13 +21,20 @@ print("Loading text file...")
 with open("data/flyff_clockworks.txt", "r", encoding="utf-8") as f:
     raw_text = f.read()
 
+    # Debug: show summary of the raw text (length and a 200-char preview)
+    print(f"Raw text length: {len(raw_text):,} characters")
+    print("Preview:", raw_text[:200].replace("\n", " ") + "...")
+
 # Split text into smaller chunks for processing
-print("Splitting text into chunks...")
-text_splitter = CharacterTextSplitter(
-    chunk_size=500,  # Size of each chunk in characters
-    chunk_overlap=50,  # Overlap between chunks to maintain context
+print("Splitting text into chunks with smarter splitter...")
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=700,  # Larger chunks on sentence/paragraph boundaries
+    chunk_overlap=100,  # Maintain more context
 )
 docs = text_splitter.split_text(raw_text)
+
+# Debug: show preview of the first split chunk
+print("First chunk preview:", docs[0][:150].replace("\n", " ") + "...")
 
 # Convert text chunks into Document objects
 documents = [Document(page_content=chunk) for chunk in docs]
@@ -39,11 +46,24 @@ embedding = HuggingFaceEmbeddings(
     model_name="sentence-transformers/all-mpnet-base-v2", model_kwargs={"device": "cpu"}
 )
 
+# Debug: print embedding dimension
+vector_dim = embedding._client.get_sentence_embedding_dimension()
+print(f"Embedding model loaded (dimension = {vector_dim})")
+
+# Debug: preview embedding of first chunk
+sample_emb = embedding.embed_documents([docs[0]])[0]
+print("First embedding (10 dims):", [round(x, 4) for x in sample_emb[:10]], "...")
+
 # Store embeddings in Chroma vector database
 vectorstore = Chroma.from_documents(documents, embedding)
 
 # Create a retriever to find relevant chunks
-retriever = vectorstore.as_retriever()
+retriever = vectorstore.as_retriever(
+    search_type="similarity_score_threshold",
+    search_kwargs={"k": 6, "score_threshold": 0.1},
+)
+print("Retriever set to similarity_score_threshold with k=6 and threshold=0.1")
+print("Retriever configured with k=6 and score_threshold=0.1")
 
 # Set up Claude for the LLM
 llm = ChatAnthropic(
