@@ -10,6 +10,5 @@ langchain-anthropic>=0.1.1
 requests==2.31.0
 beautifulsoup4==4.12.2
 lxml==5.1.0
-langchain-huggingface==0.0.3
 chromadb==0.4.22
-sentence-transformers>=2.6.0
+langchain-openai

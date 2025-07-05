@@ -1,5 +1,5 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain.schema import Document
 from typing import List, Dict, Optional
@@ -7,19 +7,25 @@ import os
 
 class RAGService:
     def __init__(self):
-        """Initialize the RAG service with embeddings and vector store"""
-        self.embedding = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-mpnet-base-v2",
-            model_kwargs={"device": "cpu"}
-        )
+        """Initialize the RAG service with OpenAI embeddings (lightweight, no local models)"""
+        self.embedding = None
         self.vectorstore = None
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=700,
             chunk_overlap=100,
         )
     
+    def _ensure_initialized(self):
+        """Lazy initialization of embedding service"""
+        if self.embedding is None:
+            self.embedding = OpenAIEmbeddings(
+                openai_api_key=os.getenv("OPENAI_API_KEY")
+            )
+    
     def process_scraped_content(self, url: str, content: str) -> None:
         """Process and store scraped content in vector database"""
+        self._ensure_initialized()
+        
         # Split content into chunks
         chunks = self.text_splitter.split_text(content)
         
@@ -43,6 +49,8 @@ class RAGService:
     
     def retrieve_relevant_content(self, query: str, k: int = 5) -> List[Dict]:
         """Retrieve relevant chunks for a query"""
+        self._ensure_initialized()
+        
         if not self.vectorstore:
             return []
         
